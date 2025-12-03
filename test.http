@@ -22,7 +22,7 @@ Content-Type: application/json
 Authorization: Bearer {{access_token}}
 
 {
-  "size": 19
+  "size": 9
 }
 
 > {%
