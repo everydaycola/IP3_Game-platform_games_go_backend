@@ -1,6 +1,3 @@
-@user1=b85182a8-68f8-4d42-b0d5-6166bf2e8284
-@user2=7ad223bd-bf5e-4945-8284-3a9c81e4e7a9
-
 @ClientId=go-backend
 @ClientSecret=b0ZVXfrGkyFlgXTPXtvCBOM4TLZzc9UY
 @player1username=123
@@ -31,4 +28,8 @@ Authorization: Bearer {{access_token}}
 
 ### getting match
 GET http://localhost:8082/go/api/matches/{{gameId}}
+Authorization: Bearer {{access_token}}
+
+### getting match
+GET http://localhost:8082/go/api/matches/00000000-0000-0000-0000-000000000000
 Authorization: Bearer {{access_token}}

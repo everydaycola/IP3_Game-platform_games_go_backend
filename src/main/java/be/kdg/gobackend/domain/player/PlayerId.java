@@ -8,12 +8,6 @@ import java.util.UUID;
 
 @Slf4j
 public record PlayerId(UUID id) {
-
-    public NotFoundException notFound() {
-        log.error("User with id {} not found", id);
-        return new NotFoundException("User [" + id + "] not found");
-    }
-
     public static PlayerId fromToken(Jwt token) {
         return new PlayerId(UUID.fromString(token.getClaimAsString("sub")));
     }
