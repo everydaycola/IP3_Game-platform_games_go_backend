@@ -34,7 +34,6 @@ class MatchIntergrationTests {
             UUID gameId = UUID.fromString("0b83d863-cbfb-4138-a210-9ea6df7653dc");
             // act
             mockMvc.perform(get("/go/api/matches/{id}", gameId)
-                    // assert
                                     .with(jwt()
                                                   .jwt(jwt -> jwt
                                                           .subject(UUID.randomUUID().toString())
@@ -43,6 +42,7 @@ class MatchIntergrationTests {
                                                           .claim(StandardClaimNames.EMAIL, "test_user@test.be")
                                                   )
                                     ))
+                   // assert
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$.id").value("0b83d863-cbfb-4138-a210-9ea6df7653dc"))
                    .andExpect(jsonPath("$.board").isArray())
@@ -58,7 +58,6 @@ class MatchIntergrationTests {
                                     // arrange
                                     .contentType("application/json")
                                     .content("{\"size\": 9}")
-                                    // assert
                                     .with(jwt()
                                                   .jwt(jwt -> jwt
                                                           .subject(UUID.randomUUID().toString())
@@ -67,6 +66,7 @@ class MatchIntergrationTests {
                                                           .claim(StandardClaimNames.EMAIL, "test_user@test.be")
                                                   )
                                     ))
+                   // assert
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$.id").isString())
                    .andExpect(jsonPath("$.board").isArray())
@@ -75,6 +75,49 @@ class MatchIntergrationTests {
                    .andExpect(jsonPath("$.board[0].length()").value(9))
                    .andExpect(jsonPath("$.board[0][0]").value("_"))
                    .andExpect(jsonPath("$.size").value(9));
+        }
+    }
+
+    @Nested
+    class BadArgumentsFlows {
+        @Test
+        void start_new_match_with_value_under_5_should_give_400() throws Exception {
+            // act
+            mockMvc.perform(post("/go/api/matches")
+                                    // arrange
+                                    .contentType("application/json")
+                                    .content("{\"size\": 4}")
+                                    .with(jwt()
+                                                  .jwt(jwt -> jwt
+                                                          .subject(UUID.randomUUID().toString())
+                                                          .claim(StandardClaimNames.GIVEN_NAME, "test_user")
+                                                          .claim(StandardClaimNames.FAMILY_NAME, "user")
+                                                          .claim(StandardClaimNames.EMAIL, "test_user@test.be")
+                                                  )
+                                    ))
+                   // assert
+                   .andExpect(status().isBadRequest())
+                   .andExpect(jsonPath("$.message").isString());
+        }
+
+        @Test
+        void start_new_match_with_value_above_19_should_give_400() throws Exception {
+            // act
+            mockMvc.perform(post("/go/api/matches")
+                                    // arrange
+                                    .contentType("application/json")
+                                    .content("{\"size\": 20}")
+                                    .with(jwt()
+                                                  .jwt(jwt -> jwt
+                                                          .subject(UUID.randomUUID().toString())
+                                                          .claim(StandardClaimNames.GIVEN_NAME, "test_user")
+                                                          .claim(StandardClaimNames.FAMILY_NAME, "user")
+                                                          .claim(StandardClaimNames.EMAIL, "test_user@test.be")
+                                                  )
+                                    ))
+                   // assert
+                   .andExpect(status().isBadRequest())
+                   .andExpect(jsonPath("$.message").isString());
         }
     }
 

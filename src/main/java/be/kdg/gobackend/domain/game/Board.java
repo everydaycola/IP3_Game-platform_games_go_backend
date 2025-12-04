@@ -12,6 +12,7 @@ public class Board {
     private final Stone[] stones;
 
     public Board(int size) {
+        if (size < 5 || size > 19) throw new IllegalArgumentException("Board size must be between 5 and 19");
         this.size = size;
         this.stones = new Stone[size * size];
         Arrays.fill(this.stones, Stone.EMPTY);

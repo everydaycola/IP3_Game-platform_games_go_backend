@@ -26,6 +26,24 @@ Authorization: Bearer {{access_token}}
     client.global.set("gameId", response.body.id);
 %}
 
+### starting a new match with size too small
+POST http://localhost:8082/go/api/matches
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "size": 4
+}
+
+### starting a new match with size too large
+POST http://localhost:8082/go/api/matches
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "size": 20
+}
+
 ### getting match
 GET http://localhost:8082/go/api/matches/{{gameId}}
 Authorization: Bearer {{access_token}}
