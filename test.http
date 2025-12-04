@@ -1,0 +1,53 @@
+@ClientId=go-backend
+@ClientSecret=b0ZVXfrGkyFlgXTPXtvCBOM4TLZzc9UY
+@player1username=123
+@player1password=123
+
+### Get access token
+POST http://localhost:8180/realms/FourteenGames/protocol/openid-connect/token HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+client_id={{ClientId}}&client_secret={{ClientSecret}}&username={{player1username}}&password={{player1password}}&grant_type=password&scope=openid
+
+> {%
+    client.global.set("access_token", response.body.access_token);
+%}
+
+### starting a new match
+POST http://localhost:8082/go/api/matches
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "size": 9
+}
+
+> {%
+    client.global.set("gameId", response.body.id);
+%}
+
+### starting a new match with size too small
+POST http://localhost:8082/go/api/matches
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "size": 4
+}
+
+### starting a new match with size too large
+POST http://localhost:8082/go/api/matches
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "size": 20
+}
+
+### getting match
+GET http://localhost:8082/go/api/matches/{{gameId}}
+Authorization: Bearer {{access_token}}
+
+### getting match
+GET http://localhost:8082/go/api/matches/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{access_token}}
