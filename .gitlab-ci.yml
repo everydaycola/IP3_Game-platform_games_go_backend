@@ -2,6 +2,7 @@ image: gradle:8.10-jdk21
 
 stages:
   - build
+  - test
   - docker-publish
 
 cache:
@@ -17,6 +18,18 @@ build:
     paths:
       - build/libs/*.jar
     expire_in: 1 hour
+
+test:
+  stage: test
+  script:
+    - gradle test --no-daemon
+  dependencies:
+    - build
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - build/test-results/test/*.xml
 
 docker-publish:
   image: docker:24.0.5-cli
