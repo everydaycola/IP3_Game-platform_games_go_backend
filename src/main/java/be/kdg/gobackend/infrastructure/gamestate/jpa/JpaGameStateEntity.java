@@ -21,6 +21,7 @@ public class JpaGameStateEntity {
     @Id
     private UUID id;
 
+
     @Column(length = 361) @Convert(converter = BoardConverter.class)
     private Stone[] board;
 
@@ -30,16 +31,12 @@ public class JpaGameStateEntity {
     @Column
     private UUID player;
 
-    @Column
-    private boolean atTurn;
-
     public static JpaGameStateEntity fromDomain(GameState gameState) {
         return new JpaGameStateEntity(
                 gameState.getId().id(),
                 gameState.getBoard().getStones(),
                 gameState.getBoard().getSize(),
-                gameState.getPlayer().id(),
-                gameState.isAtTurn()
+                gameState.getPlayer().id()
         );
     }
 
@@ -47,8 +44,7 @@ public class JpaGameStateEntity {
         return new GameState(
                 new GameStateId(this.id),
                 new Board(this.size, this.board),
-                new PlayerId(this.player),
-                this.atTurn
+                new PlayerId(this.player)
         );
     }
 }

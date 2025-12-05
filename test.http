@@ -51,21 +51,3 @@ Authorization: Bearer {{access_token}}
 ### getting match
 GET http://localhost:8082/go/api/matches/00000000-0000-0000-0000-000000000000
 Authorization: Bearer {{access_token}}
-
-### placing a stone (on top of another stone, if done twice)
-PATCH http://localhost:8082/go/api/matches/{{gameId}}
-Content-Type: application/json
-Authorization: Bearer {{access_token}}
-
-{
-  "x": 3, "y": 6
-}
-
-### placing a stone out of bounds
-PATCH http://localhost:8082/go/api/matches/{{gameId}}
-Content-Type: application/json
-Authorization: Bearer {{access_token}}
-
-{
-  "x": 3, "y": 99
-}
