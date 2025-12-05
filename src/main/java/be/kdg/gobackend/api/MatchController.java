@@ -42,7 +42,7 @@ public class MatchController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<GameStateDto> updateGame(@PathVariable UUID id, @RequestBody NewStoneDto stone){
+    public ResponseEntity<GameStateDto> placeStone(@PathVariable UUID id, @RequestBody NewStoneDto stone){
         log.info("Player from match {} placing a stone at {}, {}", id, stone.x(), stone.y());
         final var stateId = new GameStateId(id);
         final var state = gameStateService.placeStone(stateId, stone.x(), stone.y());

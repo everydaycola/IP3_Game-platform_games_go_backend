@@ -22,7 +22,7 @@ public class Board {
         String[][] board = new String[size][size];
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {
-                board[y][x] = String.valueOf(getStone(x, y).getShortName());
+                board[x][y] = String.valueOf(getStone(x, y).getShortName());
             }
         }
         return board;
@@ -36,7 +36,7 @@ public class Board {
         stones[y * size + x] = stone;
     }
 
-    private Stone getStone(int x, int y) {
+    public Stone getStone(int x, int y) {
         return stones[y * size + x];
     }
 }

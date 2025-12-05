@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -31,7 +32,7 @@ class MatchIntergrationTests {
         @Test
         void get_match_should_return_200_with_valid_json_structure() throws Exception {
             // arrange
-            UUID gameId = UUID.fromString("0b83d863-cbfb-4138-a210-9ea6df7653dc");
+            final var gameId = UUID.fromString("0b83d863-cbfb-4138-a210-9ea6df7653dc");
             // act
             mockMvc.perform(get("/go/api/matches/{id}", gameId)
                                     .with(jwt()
@@ -76,6 +77,28 @@ class MatchIntergrationTests {
                    .andExpect(jsonPath("$.board[0][0]").value("_"))
                    .andExpect(jsonPath("$.size").value(9));
         }
+
+        @Test
+        void place_stone_should_place_stone_successfully() throws Exception {
+            // arrange
+            final var gameId = UUID.fromString("0b83d863-cbfb-4138-a210-9ea6df7653dc");
+            // act
+            mockMvc.perform(patch("/go/api/matches/{id}", gameId)
+                            // arrange
+                            .contentType("application/json")
+                            .content("{\"x\": 1,\"y\": 2}")
+                            .with(jwt()
+                                    .jwt(jwt -> jwt
+                                            .subject(UUID.randomUUID().toString())
+                                            .claim(StandardClaimNames.GIVEN_NAME, "test_user")
+                                            .claim(StandardClaimNames.FAMILY_NAME, "user")
+                                            .claim(StandardClaimNames.EMAIL, "test_user@test.be")
+                                    )
+                            ))
+                    // assert
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.board[1][2]").value("B"));
+        }
     }
 
     @Nested
@@ -118,6 +141,28 @@ class MatchIntergrationTests {
                    // assert
                    .andExpect(status().isBadRequest())
                    .andExpect(jsonPath("$.message").isString());
+        }
+
+        @Test
+        void place_stone_should_return_400_if_out_bounds() throws Exception {
+            // arrange
+            final var gameId = UUID.fromString("0b83d863-cbfb-4138-a210-9ea6df7653dc");
+            // act
+            mockMvc.perform(patch("/go/api/matches/{id}", gameId)
+                            // arrange
+                            .contentType("application/json")
+                            .content("{\"x\": 1,\"y\": 99}")
+                            .with(jwt()
+                                    .jwt(jwt -> jwt
+                                            .subject(UUID.randomUUID().toString())
+                                            .claim(StandardClaimNames.GIVEN_NAME, "test_user")
+                                            .claim(StandardClaimNames.FAMILY_NAME, "user")
+                                            .claim(StandardClaimNames.EMAIL, "test_user@test.be")
+                                    )
+                            ))
+                    // assert
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.message").isString());
         }
     }
 
