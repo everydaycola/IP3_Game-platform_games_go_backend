@@ -2,6 +2,7 @@ package be.kdg.gobackend.api;
 
 import be.kdg.gobackend.api.dto.GameStateDto;
 import be.kdg.gobackend.api.dto.NewMatchDto;
+import be.kdg.gobackend.api.dto.NewStoneDto;
 import be.kdg.gobackend.application.GameStateService;
 import be.kdg.gobackend.domain.game.GameStateId;
 import be.kdg.gobackend.domain.player.PlayerId;
