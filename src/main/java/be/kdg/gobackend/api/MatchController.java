@@ -2,6 +2,7 @@ package be.kdg.gobackend.api;
 
 import be.kdg.gobackend.api.dto.GameStateDto;
 import be.kdg.gobackend.api.dto.NewMatchDto;
+import be.kdg.gobackend.api.dto.NewStoneDto;
 import be.kdg.gobackend.application.GameStateService;
 import be.kdg.gobackend.domain.game.GameStateId;
 import be.kdg.gobackend.domain.player.PlayerId;
@@ -37,6 +38,14 @@ public class MatchController {
         log.info("Getting game with id {}", id);
         final var stateId = new GameStateId(id);
         final var state = gameStateService.getState(stateId);
+        return ResponseEntity.ok(GameStateDto.from(state));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<GameStateDto> placeStone(@PathVariable UUID id, @RequestBody NewStoneDto stone){
+        log.info("Player from match {} placing a stone at {}, {}", id, stone.x(), stone.y());
+        final var stateId = new GameStateId(id);
+        final var state = gameStateService.placeStone(stateId, stone.x(), stone.y());
         return ResponseEntity.ok(GameStateDto.from(state));
     }
 }
