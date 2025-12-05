@@ -35,47 +35,47 @@ class MatchIntergrationTests {
             final var gameId = UUID.fromString("0b83d863-cbfb-4138-a210-9ea6df7653dc");
             // act
             mockMvc.perform(get("/go/api/matches/{id}", gameId)
-                                    .with(jwt()
-                                                  .jwt(jwt -> jwt
-                                                          .subject(UUID.randomUUID().toString())
-                                                          .claim(StandardClaimNames.GIVEN_NAME, "test_user")
-                                                          .claim(StandardClaimNames.FAMILY_NAME, "user")
-                                                          .claim(StandardClaimNames.EMAIL, "test_user@test.be")
-                                                  )
-                                    ))
-                   // assert
-                   .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.id").value("0b83d863-cbfb-4138-a210-9ea6df7653dc"))
-                   .andExpect(jsonPath("$.board").isArray())
-                   .andExpect(jsonPath("$.board[0]").isArray())
-                   .andExpect(jsonPath("$.board[0][0]").value("_"))
-                   .andExpect(jsonPath("$.size").isNumber());
+                            .with(jwt()
+                                    .jwt(jwt -> jwt
+                                            .subject(UUID.randomUUID().toString())
+                                            .claim(StandardClaimNames.GIVEN_NAME, "test_user")
+                                            .claim(StandardClaimNames.FAMILY_NAME, "user")
+                                            .claim(StandardClaimNames.EMAIL, "test_user@test.be")
+                                    )
+                            ))
+                    // assert
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").value("0b83d863-cbfb-4138-a210-9ea6df7653dc"))
+                    .andExpect(jsonPath("$.board").isArray())
+                    .andExpect(jsonPath("$.board[0]").isArray())
+                    .andExpect(jsonPath("$.board[0][0]").value("_"))
+                    .andExpect(jsonPath("$.size").isNumber());
         }
 
         @Test
         void start_new_match_creates_a_match_and_returns_it() throws Exception {
             // act
             mockMvc.perform(post("/go/api/matches")
-                                    // arrange
-                                    .contentType("application/json")
-                                    .content("{\"size\": 9}")
-                                    .with(jwt()
-                                                  .jwt(jwt -> jwt
-                                                          .subject(UUID.randomUUID().toString())
-                                                          .claim(StandardClaimNames.GIVEN_NAME, "test_user")
-                                                          .claim(StandardClaimNames.FAMILY_NAME, "user")
-                                                          .claim(StandardClaimNames.EMAIL, "test_user@test.be")
-                                                  )
-                                    ))
-                   // assert
-                   .andExpect(status().isOk())
-                   .andExpect(jsonPath("$.id").isString())
-                   .andExpect(jsonPath("$.board").isArray())
-                   .andExpect(jsonPath("$.board.length()").value(9))
-                   .andExpect(jsonPath("$.board[0]").isArray())
-                   .andExpect(jsonPath("$.board[0].length()").value(9))
-                   .andExpect(jsonPath("$.board[0][0]").value("_"))
-                   .andExpect(jsonPath("$.size").value(9));
+                            // arrange
+                            .contentType("application/json")
+                            .content("{\"size\": 9}")
+                            .with(jwt()
+                                    .jwt(jwt -> jwt
+                                            .subject(UUID.randomUUID().toString())
+                                            .claim(StandardClaimNames.GIVEN_NAME, "test_user")
+                                            .claim(StandardClaimNames.FAMILY_NAME, "user")
+                                            .claim(StandardClaimNames.EMAIL, "test_user@test.be")
+                                    )
+                            ))
+                    // assert
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").isString())
+                    .andExpect(jsonPath("$.board").isArray())
+                    .andExpect(jsonPath("$.board.length()").value(9))
+                    .andExpect(jsonPath("$.board[0]").isArray())
+                    .andExpect(jsonPath("$.board[0].length()").value(9))
+                    .andExpect(jsonPath("$.board[0][0]").value("_"))
+                    .andExpect(jsonPath("$.size").value(9));
         }
 
         @Test
@@ -102,45 +102,45 @@ class MatchIntergrationTests {
     }
 
     @Nested
-    class BadArgumentsFlows {
+    class BadRequestFlows {
         @Test
         void start_new_match_with_value_under_5_should_give_400() throws Exception {
             // act
             mockMvc.perform(post("/go/api/matches")
-                                    // arrange
-                                    .contentType("application/json")
-                                    .content("{\"size\": 4}")
-                                    .with(jwt()
-                                                  .jwt(jwt -> jwt
-                                                          .subject(UUID.randomUUID().toString())
-                                                          .claim(StandardClaimNames.GIVEN_NAME, "test_user")
-                                                          .claim(StandardClaimNames.FAMILY_NAME, "user")
-                                                          .claim(StandardClaimNames.EMAIL, "test_user@test.be")
-                                                  )
-                                    ))
-                   // assert
-                   .andExpect(status().isBadRequest())
-                   .andExpect(jsonPath("$.message").isString());
+                            // arrange
+                            .contentType("application/json")
+                            .content("{\"size\": 4}")
+                            .with(jwt()
+                                    .jwt(jwt -> jwt
+                                            .subject(UUID.randomUUID().toString())
+                                            .claim(StandardClaimNames.GIVEN_NAME, "test_user")
+                                            .claim(StandardClaimNames.FAMILY_NAME, "user")
+                                            .claim(StandardClaimNames.EMAIL, "test_user@test.be")
+                                    )
+                            ))
+                    // assert
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.message").isString());
         }
 
         @Test
         void start_new_match_with_value_above_19_should_give_400() throws Exception {
             // act
             mockMvc.perform(post("/go/api/matches")
-                                    // arrange
-                                    .contentType("application/json")
-                                    .content("{\"size\": 20}")
-                                    .with(jwt()
-                                                  .jwt(jwt -> jwt
-                                                          .subject(UUID.randomUUID().toString())
-                                                          .claim(StandardClaimNames.GIVEN_NAME, "test_user")
-                                                          .claim(StandardClaimNames.FAMILY_NAME, "user")
-                                                          .claim(StandardClaimNames.EMAIL, "test_user@test.be")
-                                                  )
-                                    ))
-                   // assert
-                   .andExpect(status().isBadRequest())
-                   .andExpect(jsonPath("$.message").isString());
+                            // arrange
+                            .contentType("application/json")
+                            .content("{\"size\": 20}")
+                            .with(jwt()
+                                    .jwt(jwt -> jwt
+                                            .subject(UUID.randomUUID().toString())
+                                            .claim(StandardClaimNames.GIVEN_NAME, "test_user")
+                                            .claim(StandardClaimNames.FAMILY_NAME, "user")
+                                            .claim(StandardClaimNames.EMAIL, "test_user@test.be")
+                                    )
+                            ))
+                    // assert
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.message").isString());
         }
 
         @Test
@@ -167,48 +167,61 @@ class MatchIntergrationTests {
     }
 
     @Nested
-    class ErrorFlows{
+    class NotFoundFlows {
         @Test
         void get_match_with_wrong_uuid_return_404_and_message() throws Exception {
             // arrange
-            UUID gameId = UUID.fromString("00000000-0000-0000-0000-000000000000");
+            final var gameId = UUID.fromString("00000000-0000-0000-0000-000000000000");
             // act
             mockMvc.perform(get("/go/api/matches/{id}", gameId)
-                    // assert
-                                    .with(jwt()
-                                                  .jwt(jwt -> jwt
-                                                          .subject(UUID.randomUUID().toString())
-                                                          .claim(StandardClaimNames.GIVEN_NAME, "test_user")
-                                                          .claim(StandardClaimNames.FAMILY_NAME, "user")
-                                                          .claim(StandardClaimNames.EMAIL, "test_user@test.be")
-                                                  )
-                                    ))
-                   .andExpect(status().isNotFound())
-                   .andExpect(jsonPath("$.message").isString());
+                            // assert
+                            .with(jwt()
+                                    .jwt(jwt -> jwt
+                                            .subject(UUID.randomUUID().toString())
+                                            .claim(StandardClaimNames.GIVEN_NAME, "test_user")
+                                            .claim(StandardClaimNames.FAMILY_NAME, "user")
+                                            .claim(StandardClaimNames.EMAIL, "test_user@test.be")
+                                    )
+                            ))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.message").isString());
         }
     }
 
     @Nested
-    class SecurityFlows{
+    class SecurityFlows {
         @Test
         void get_match_should_return_200_with_valid_json_structure() throws Exception {
             // arrange
-            UUID gameId = UUID.fromString("0b83d863-cbfb-4138-a210-9ea6df7653dc");
+            final var gameId = UUID.fromString("0b83d863-cbfb-4138-a210-9ea6df7653dc");
             // act
             mockMvc.perform(get("/go/api/matches/{id}", gameId))
                     // assert
-                   .andExpect(status().isUnauthorized());
+                    .andExpect(status().isUnauthorized());
         }
 
         @Test
         void start_new_match_creates_a_match_and_returns_it() throws Exception {
             // act
             mockMvc.perform(post("/go/api/matches")
-                    // arrange
-                                    .contentType("application/json")
-                                    .content("{\"size\": 9}"))
-                   // assert
-                   .andExpect(status().isUnauthorized());
+                            // arrange
+                            .contentType("application/json")
+                            .content("{\"size\": 9}"))
+                    // assert
+                    .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        void place_stone_should_place_stone_successfully() throws Exception {
+            // arrange
+            final var gameId = UUID.fromString("0b83d863-cbfb-4138-a210-9ea6df7653dc");
+            // act
+            mockMvc.perform(patch("/go/api/matches/{id}", gameId)
+                            // arrange
+                            .contentType("application/json")
+                            .content("{\"x\": 1,\"y\": 2}"))
+                    // assert
+                    .andExpect(status().isUnauthorized());;
         }
     }
 }
