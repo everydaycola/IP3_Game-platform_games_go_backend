@@ -48,4 +48,14 @@ public class MatchController {
         final var state = gameStateService.placeStone(stateId, stone.x(), stone.y());
         return ResponseEntity.ok(GameStateDto.from(state));
     }
+
+    @PatchMapping("/{id}/ai")
+    public ResponseEntity<GameStateDto> letAiPlaceStone(@PathVariable UUID id){
+        log.info("Letting the AI place it's stone in match {}", id);
+        final var stateId = new GameStateId(id);
+        final var state = gameStateService.letAiPlaceStone(stateId);
+        return ResponseEntity.ok(GameStateDto.from(state));
+    }
+
+
 }

@@ -12,8 +12,8 @@ public record GameStateDto(
     public static GameStateDto from(GameState gameState) {
         return new GameStateDto(
                 gameState.getId().id(),
-                gameState.getBoard().getBoardForDto(),
-                gameState.getBoard().getSize()
+                gameState.getBoardForDto(),
+                gameState.getSize()
         );
     }
 }

@@ -69,3 +69,8 @@ Authorization: Bearer {{access_token}}
 {
   "x": 3, "y": 99
 }
+
+### let the ai do a move
+PATCH http://localhost:8082/go/api/matches/{{gameId}}/ai
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
