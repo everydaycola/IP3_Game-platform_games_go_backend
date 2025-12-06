@@ -29,7 +29,7 @@ public class Board {
     }
 
     public void placeStone(int x, int y, Stone stone) {
-        if (0 >= x || x >= size || 0 >= y || y >= size)
+        if (0 > x || x >= size || 0 > y || y >= size)
             throw new IllegalArgumentException("Position is out of bounds");
         if (getStone(x, y) != Stone.EMPTY)
             throw new IllegalStateException("Spot is already taken");

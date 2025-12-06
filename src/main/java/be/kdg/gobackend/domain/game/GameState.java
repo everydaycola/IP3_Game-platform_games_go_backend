@@ -11,7 +11,7 @@ public class GameState {
     private final GameStateId id;
     private final Board board;
     private final PlayerId player;
-    private final boolean atTurn;
+    private boolean atTurn;
 
     public GameState(int size, PlayerId player) {
         this.player = player;
@@ -21,9 +21,19 @@ public class GameState {
         this.atTurn = true;
     }
 
+    public String[][] getBoardForDto() {
+        return this.board.getBoardForDto();
+    }
+
     public void placeStone(int x, int y, Stone stone) {
+        final var playerTurn = stone.equals(Stone.BLACK);
+        if (atTurn != playerTurn) throw new IllegalStateException("It is not player's turn");
         board.placeStone(x, y, stone);
-//        atTurn = false; // todo dissabled for testing
+        this.atTurn = !playerTurn;
+    }
+
+    public int getSize() {
+        return this.board.getSize();
     }
 
 //    public Stone getStone(int x, int y) {

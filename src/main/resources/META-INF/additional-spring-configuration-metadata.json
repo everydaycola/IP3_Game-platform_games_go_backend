@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "ai-catalog-api.url",
+      "type": "java.lang.String",
+      "description": "The base api url for talking to the restaurant catalog."
+    }
+  ]
+}
