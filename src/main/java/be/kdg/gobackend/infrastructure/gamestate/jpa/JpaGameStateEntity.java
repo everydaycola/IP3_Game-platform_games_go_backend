@@ -25,7 +25,10 @@ public class JpaGameStateEntity {
     private Stone[] board;
 
     @Column
-    private int size;
+    private int boardSize;
+
+    @Column
+    private double score;
 
     @Column
     private UUID player;
@@ -33,22 +36,34 @@ public class JpaGameStateEntity {
     @Column
     private boolean atTurn;
 
+    @Column
+    private boolean isLastTurnPassed;
+
+    @Column
+    private Stone winner;
+
     public static JpaGameStateEntity fromDomain(GameState gameState) {
         return new JpaGameStateEntity(
                 gameState.getId().id(),
                 gameState.getBoard().getStones(),
                 gameState.getBoard().getSize(),
+                gameState.getScore(),
                 gameState.getPlayer().id(),
-                gameState.isAtTurn()
+                gameState.isAtTurn(),
+                gameState.isLastTurnPassed(),
+                gameState.getWinner()
         );
     }
 
     public GameState toDomain() {
         return new GameState(
                 new GameStateId(this.id),
-                new Board(this.size, this.board),
+                new Board(this.boardSize, this.board),
                 new PlayerId(this.player),
-                this.atTurn
+                this.atTurn,
+                this.isLastTurnPassed,
+                this.score,
+                this.winner
         );
     }
 }

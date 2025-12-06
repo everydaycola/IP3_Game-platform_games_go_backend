@@ -10,7 +10,6 @@ import java.util.Queue;
 @Getter
 @AllArgsConstructor
 public class Board {
-    private static final double KOMI = 6.5;
     private final int size;
     private final Stone[] stones;
 
@@ -45,28 +44,27 @@ public class Board {
 
     // Scoring Logic
 
-    public Double calculateScore() {
+    public double calculateScore() {
+        var score = 0.0;
         // instead of calculating the actual score, for simplicity, only the score difference is calculated
-        var score = -KOMI;
-
         final var visited = new boolean[size][size];
 
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {
                 final var currentStone = getStone(x, y);
 
-                // one point for if the stone is yours
                 switch (currentStone) {
+                    // one point for if the stone is yours
                     case BLACK -> score++;
                     case WHITE -> score--;
+                    // for empty tiles, do an analysis to find the terretory size
                     case EMPTY -> {
-                        if (!visited[x][y]) {
-                            final var result = analyzeTerritory(x, y, visited);
-                            if (result.touchesBlack && !result.touchesWhite) {
-                                score += result.size;
-                            } else if (result.touchesWhite && !result.touchesBlack) {
-                                score -= result.size;
-                            }
+                        if (visited[x][y]) continue;
+                        final var result = analyzeTerritory(x, y, visited);
+                        if (result.touchesBlack && !result.touchesWhite) {
+                            score += result.size;
+                        } else if (result.touchesWhite && !result.touchesBlack) {
+                            score -= result.size;
                         }
                     }
                 }
@@ -95,17 +93,19 @@ public class Board {
                 final var nx = current.x + dir[0];
                 final var ny = current.y + dir[1];
 
-                if (nx >= 0 && nx < this.size && ny >= 0 && ny < this.size) {
-                    final var neighborStone = getStone(nx, ny);
+                if (nx < 0 || nx >= this.size || ny < 0 || ny >= this.size) {
+                    continue;
+                }
 
-                    switch (neighborStone) {
-                        case BLACK -> touchesBlack = true;
-                        case WHITE -> touchesWhite = true;
-                        case EMPTY -> {
-                            if (!visited[nx][ny]) {
-                                visited[nx][ny] = true;
-                                queue.add(new Point(nx, ny));
-                            }
+                final var neighborStone = getStone(nx, ny);
+
+                switch (neighborStone) {
+                    case BLACK -> touchesBlack = true;
+                    case WHITE -> touchesWhite = true;
+                    case EMPTY -> {
+                        if (!visited[nx][ny]) {
+                            visited[nx][ny] = true;
+                            queue.add(new Point(nx, ny));
                         }
                     }
                 }

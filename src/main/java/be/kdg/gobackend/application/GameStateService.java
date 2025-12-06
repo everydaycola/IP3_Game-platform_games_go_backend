@@ -47,9 +47,17 @@ public class GameStateService {
     public GameState letAiPlaceStone(GameStateId stateId) {
         log.info("ai placing a stone in match {}", stateId);
         final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
-        final var aiResponse = aiCatalog.askForMove(GameStateDto.from(gameState)).orElseThrow(
-                () -> new IllegalStateException("Ai could not make a move"));
+        final var aiResponse = aiCatalog.askForMove(GameStateDto.from(gameState))
+                                        .orElseThrow(() -> new IllegalStateException("Ai could not make a move"));
         gameState.placeStone(aiResponse.row(), aiResponse.col(), Stone.WHITE);
+        gameStateRepository.save(gameState);
+        return gameState;
+    }
+
+    public GameState passTurn(GameStateId stateId) {
+        log.info("passing turn to player in match {}", stateId);
+        final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
+        gameState.passTurn();
         gameStateRepository.save(gameState);
         return gameState;
     }

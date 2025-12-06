@@ -7,13 +7,22 @@ import java.util.UUID;
 public record GameStateDto(
         UUID id,
         String[][] board,
-        int size
+        int size,
+        String winner,
+        double score,
+        boolean atTurn,
+        boolean isLastTurnPassed
+
 ) {
     public static GameStateDto from(GameState gameState) {
         return new GameStateDto(
                 gameState.getId().id(),
                 gameState.getBoardForDto(),
-                gameState.getSize()
+                gameState.getSize(),
+                gameState.getWinner() != null ? gameState.getWinner().toString() : null,
+                gameState.getScore(),
+                gameState.isAtTurn(),
+                gameState.isLastTurnPassed()
         );
     }
 }

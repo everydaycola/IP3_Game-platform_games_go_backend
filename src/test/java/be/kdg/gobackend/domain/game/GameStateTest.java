@@ -22,7 +22,7 @@ class GameStateTest {
             // Arrange
             final var mockBoard = Mockito.mock(Board.class);
             final var playerId = new PlayerId(UUID.randomUUID());
-            final var gameState = new GameState(new GameStateId(), mockBoard, playerId, true);
+            final var gameState = new GameState(new GameStateId(), mockBoard, playerId, true, false, 0.0, null);
 
             final var x = 3;
             final var y = 5;
@@ -41,7 +41,7 @@ class GameStateTest {
             // Arrange
             final var mockBoard = Mockito.mock(Board.class);
             final var playerId = new PlayerId(UUID.randomUUID());
-            final var gameState = new GameState(new GameStateId(), mockBoard, playerId, false);
+            final var gameState = new GameState(new GameStateId(), mockBoard, playerId, false, false, 0.0, null);
 
             final var x = 2;
             final var y = 2;
@@ -63,7 +63,7 @@ class GameStateTest {
             // Arrange
             final var mockBoard = Mockito.mock(Board.class);
             final var playerId = new PlayerId(UUID.randomUUID());
-            final var gameState = new GameState(new GameStateId(), mockBoard, playerId, false);
+            final var gameState = new GameState(new GameStateId(), mockBoard, playerId, false, false, 0.0, null);
 
             final var x = 3;
             final var y = 5;
@@ -82,7 +82,7 @@ class GameStateTest {
             // Arrange
             final var mockBoard = Mockito.mock(Board.class);
             final var playerId = new PlayerId(UUID.randomUUID());
-            final var gameState = new GameState(new GameStateId(), mockBoard, playerId, true);
+            final var gameState = new GameState(new GameStateId(), mockBoard, playerId, true, false, 0.0, null);
 
             final var x = 2;
             final var y = 2;
