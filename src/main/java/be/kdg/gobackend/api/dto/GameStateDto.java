@@ -19,7 +19,7 @@ public record GameStateDto(
                 gameState.getId().id(),
                 gameState.getBoardForDto(),
                 gameState.getSize(),
-                gameState.getWinner() != null ? gameState.getWinner().toString() : null,
+                gameState.getWinner().toString(),
                 gameState.getScore(),
                 gameState.isAtTurn(),
                 gameState.isLastTurnPassed()
