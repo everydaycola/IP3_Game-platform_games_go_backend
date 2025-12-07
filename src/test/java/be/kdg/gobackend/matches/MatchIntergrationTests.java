@@ -37,7 +37,7 @@ class MatchIntergrationTests {
             mockMvc.perform(get("/go/api/matches/{id}", gameId)
                             .with(jwt()
                                     .jwt(jwt -> jwt
-                                            .subject(UUID.randomUUID().toString())
+                                            .subject("0b906b06-53fe-4095-a3bd-32b8aa4e9aba")
                                             .claim(StandardClaimNames.GIVEN_NAME, "test_user")
                                             .claim(StandardClaimNames.FAMILY_NAME, "user")
                                             .claim(StandardClaimNames.EMAIL, "test_user@test.be")
@@ -61,7 +61,7 @@ class MatchIntergrationTests {
                             .content("{\"size\": 9}")
                             .with(jwt()
                                     .jwt(jwt -> jwt
-                                            .subject(UUID.randomUUID().toString())
+                                            .subject("0b906b06-53fe-4095-a3bd-32b8aa4e9aba")
                                             .claim(StandardClaimNames.GIVEN_NAME, "test_user")
                                             .claim(StandardClaimNames.FAMILY_NAME, "user")
                                             .claim(StandardClaimNames.EMAIL, "test_user@test.be")
@@ -89,7 +89,7 @@ class MatchIntergrationTests {
                             .content("{\"x\": 1,\"y\": 2}")
                             .with(jwt()
                                     .jwt(jwt -> jwt
-                                            .subject(UUID.randomUUID().toString())
+                                            .subject("0b906b06-53fe-4095-a3bd-32b8aa4e9aba")
                                             .claim(StandardClaimNames.GIVEN_NAME, "test_user")
                                             .claim(StandardClaimNames.FAMILY_NAME, "user")
                                             .claim(StandardClaimNames.EMAIL, "test_user@test.be")
@@ -112,7 +112,7 @@ class MatchIntergrationTests {
                             .content("{\"size\": 4}")
                             .with(jwt()
                                     .jwt(jwt -> jwt
-                                            .subject(UUID.randomUUID().toString())
+                                            .subject("0b906b06-53fe-4095-a3bd-32b8aa4e9aba")
                                             .claim(StandardClaimNames.GIVEN_NAME, "test_user")
                                             .claim(StandardClaimNames.FAMILY_NAME, "user")
                                             .claim(StandardClaimNames.EMAIL, "test_user@test.be")
@@ -125,6 +125,7 @@ class MatchIntergrationTests {
 
         @Test
         void start_new_match_with_value_above_19_should_give_400() throws Exception {
+            final var playerUUID = "0b906b06-53fe-4095-a3bd-32b8aa4e9aba";
             // act
             mockMvc.perform(post("/go/api/matches")
                             // arrange
@@ -132,7 +133,7 @@ class MatchIntergrationTests {
                             .content("{\"size\": 20}")
                             .with(jwt()
                                     .jwt(jwt -> jwt
-                                            .subject(UUID.randomUUID().toString())
+                                            .subject("0b906b06-53fe-4095-a3bd-32b8aa4e9aba")
                                             .claim(StandardClaimNames.GIVEN_NAME, "test_user")
                                             .claim(StandardClaimNames.FAMILY_NAME, "user")
                                             .claim(StandardClaimNames.EMAIL, "test_user@test.be")
@@ -154,7 +155,7 @@ class MatchIntergrationTests {
                             .content("{\"x\": 1,\"y\": 99}")
                             .with(jwt()
                                     .jwt(jwt -> jwt
-                                            .subject(UUID.randomUUID().toString())
+                                            .subject("0b906b06-53fe-4095-a3bd-32b8aa4e9aba")
                                             .claim(StandardClaimNames.GIVEN_NAME, "test_user")
                                             .claim(StandardClaimNames.FAMILY_NAME, "user")
                                             .claim(StandardClaimNames.EMAIL, "test_user@test.be")
@@ -177,7 +178,7 @@ class MatchIntergrationTests {
                             // assert
                             .with(jwt()
                                     .jwt(jwt -> jwt
-                                            .subject(UUID.randomUUID().toString())
+                                            .subject("0b906b06-53fe-4095-a3bd-32b8aa4e9aba")
                                             .claim(StandardClaimNames.GIVEN_NAME, "test_user")
                                             .claim(StandardClaimNames.FAMILY_NAME, "user")
                                             .claim(StandardClaimNames.EMAIL, "test_user@test.be")

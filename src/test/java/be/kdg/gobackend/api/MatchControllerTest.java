@@ -49,7 +49,8 @@ class MatchControllerTest {
         @DisplayName("Should successfully let the Ai make a new move")
         void aiMakesAMove() {
             // Arrange
-            final var playerId = new PlayerId(UUID.randomUUID());
+            UUID playerUUID = UUID.randomUUID();
+            final var playerId = new PlayerId(playerUUID);
             final var match = new GameState(9, playerId);
             match.placeStone(0,8, Stone.BLACK);
             final var jpaEntity = JpaGameStateEntity.fromDomain(match);
@@ -62,7 +63,7 @@ class MatchControllerTest {
 
             final var jwt_token = Jwt.withTokenValue("token")
                                      .header("alg", "none")
-                                     .subject(UUID.randomUUID().toString())
+                                     .subject(playerUUID.toString())
                                      .claim(StandardClaimNames.GIVEN_NAME, "test_user")
                                      .claim(StandardClaimNames.FAMILY_NAME, "user")
                                      .claim(StandardClaimNames.EMAIL, "test_user@test.be")
@@ -92,7 +93,8 @@ class MatchControllerTest {
         @DisplayName("Should fail when the ai does not make a move")
         void aiMakesEmptyMove() {
             // Arrange
-            final var playerId = new PlayerId(UUID.randomUUID());
+            UUID playerUUID = UUID.randomUUID();
+            final var playerId = new PlayerId(playerUUID);
             final var match = new GameState(9, playerId);
             match.placeStone(0,8, Stone.BLACK);
             final var jpaEntity = JpaGameStateEntity.fromDomain(match);
@@ -104,7 +106,7 @@ class MatchControllerTest {
 
             final var jwt_token = Jwt.withTokenValue("token")
                                      .header("alg", "none")
-                                     .subject(UUID.randomUUID().toString())
+                                     .subject(playerUUID.toString())
                                      .claim(StandardClaimNames.GIVEN_NAME, "test_user")
                                      .claim(StandardClaimNames.FAMILY_NAME, "user")
                                      .claim(StandardClaimNames.EMAIL, "test_user@test.be")
