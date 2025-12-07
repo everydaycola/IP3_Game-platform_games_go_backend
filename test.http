@@ -58,7 +58,7 @@ Content-Type: application/json
 Authorization: Bearer {{access_token}}
 
 {
-  "x": 3, "y": 6
+  "x": 8, "y": 1
 }
 
 ### placing a stone out of bounds
@@ -72,5 +72,10 @@ Authorization: Bearer {{access_token}}
 
 ### let the ai do a move
 PATCH http://localhost:8082/go/api/matches/{{gameId}}/ai
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+### pass
+PATCH http://localhost:8082/go/api/matches/{{gameId}}/pass
 Content-Type: application/json
 Authorization: Bearer {{access_token}}

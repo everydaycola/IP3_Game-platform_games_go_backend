@@ -1,15 +1,13 @@
 package be.kdg.gobackend.domain.game;
 
+import be.kdg.gobackend.domain.exception.NotFoundException;
 import be.kdg.gobackend.domain.player.PlayerId;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 // note in general, the game only allows user vs AI at the moment.
-@Getter
-@Slf4j
-@AllArgsConstructor
-public class GameState {
+@Getter @Slf4j @AllArgsConstructor public class GameState {
     private static final double KOMI = 6.5;
     private final GameStateId id;
     private final Board board;
@@ -27,7 +25,7 @@ public class GameState {
         // the player always starts and is always at turn first (thus playing black)
         this.atTurn = true;
         this.isLastTurnPassed = false;
-        this.score = -KOMI;
+        this.score = 0.0;
         this.winner = Stone.EMPTY;
     }
 
@@ -48,16 +46,24 @@ public class GameState {
         return this.board.getSize();
     }
 
-    public void passTurn() {
+    public void passTurn(Stone stone) {
+        final var playerTurn = stone.equals(Stone.BLACK);
+        if (atTurn != playerTurn) throw new IllegalStateException("It is not player's turn");
         log.info("Passing turn");
         if (this.isLastTurnPassed) {
-            log.info("The game has ended, calculating score");
-            this.score = this.board.calculateScore();
-            log.info("Final score: {}", this.score);
+            this.score = this.board.calculateScore() - KOMI;
             this.winner = this.score > 0 ? Stone.BLACK : Stone.WHITE;
-            log.info("Winner: {}", this.winner);
+            log.info("""
+                             The game has ended.
+                             Final score: {}
+                             Winner: {}
+                             """, this.score, this.winner);
         }
         this.isLastTurnPassed = true;
         this.atTurn = !this.atTurn;
+    }
+
+    public void verifyPlayer(PlayerId playerId) {
+        if (!player.equals(playerId)) throw new NotFoundException("Game was not found");
     }
 }
