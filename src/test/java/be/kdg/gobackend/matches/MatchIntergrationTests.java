@@ -131,7 +131,7 @@ class MatchIntergrationTests {
         }
 
         @Test
-        void pass_after_pass_should_end_game() throws Exception {
+        void pass_after_pass_should_end_game_black_wins() throws Exception {
             // arrange
             final var gameId = UUID.fromString("00000000-0000-0000-0000-000000000004");
             // act
@@ -148,6 +148,26 @@ class MatchIntergrationTests {
                    .andExpect(status().isOk())
                    .andExpect(jsonPath("$.winner").value("BLACK"))
                    .andExpect(jsonPath("$.score").value(74.5));
+        }
+
+        @Test
+        void pass_after_pass_should_end_game_white_wins() throws Exception {
+            // arrange
+            final var gameId = UUID.fromString("00000000-0000-0000-0000-000000000005");
+            // act
+            mockMvc.perform(patch("/go/api/matches/{id}/pass", gameId)
+                                    .with(jwt()
+                                                  .jwt(jwt -> jwt
+                                                          .subject("10000000-0000-0000-0000-000000000005")
+                                                          .claim(StandardClaimNames.GIVEN_NAME, "test_user")
+                                                          .claim(StandardClaimNames.FAMILY_NAME, "user")
+                                                          .claim(StandardClaimNames.EMAIL, "test_user@test.be")
+                                                  )
+                                    ))
+                   // assert
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$.winner").value("WHITE"))
+                   .andExpect(jsonPath("$.score").value(-87.5));
         }
     }
 
