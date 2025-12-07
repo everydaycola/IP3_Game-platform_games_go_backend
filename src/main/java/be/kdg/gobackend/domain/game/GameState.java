@@ -50,17 +50,19 @@ import lombok.extern.slf4j.Slf4j;
         final var playerTurn = stone.equals(Stone.BLACK);
         if (atTurn != playerTurn) throw new IllegalStateException("It is not player's turn");
         log.info("Passing turn");
-        if (this.isLastTurnPassed) {
-            this.score = this.board.calculateScore() - KOMI;
-            this.winner = this.score > 0 ? Stone.BLACK : Stone.WHITE;
-            log.info("""
+        if (!this.isLastTurnPassed) {
+            this.isLastTurnPassed = true;
+            this.atTurn = !this.atTurn;
+            return;
+        }
+        this.score = this.board.calculateScore() - KOMI;
+        this.winner = this.score > 0 ? Stone.BLACK : Stone.WHITE;
+        log.info("""
                              The game has ended.
                              Final score: {}
                              Winner: {}
                              """, this.score, this.winner);
-        }
-        this.isLastTurnPassed = true;
-        this.atTurn = !this.atTurn;
+
     }
 
     public void verifyPlayer(PlayerId playerId) {
