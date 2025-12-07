@@ -73,13 +73,48 @@ class MatchControllerTest {
             final var result = sut.letAiPlaceStone(jwt_token, match.getId().id());
 
             // Assert
-            System.out.print(result);
-
             Assertions.assertNotNull(result.getBody());
             Assertions.assertEquals(match.getId().id(), result.getBody().id());
             Assertions.assertEquals(9, result.getBody().size());
             Assertions.assertEquals("W", result.getBody().board()[5][6]);
             TestHelpers.assertBoardCounts(result.getBody().board(), 79, 1, 1);
+
+            Mockito.verify(jpaGameStateRepository).findById(Mockito.any(UUID.class));
+            Mockito.verify(jpaGameStateRepository).save(Mockito.any(JpaGameStateEntity.class));
+            Mockito.verify(aiCatalog).askForMove(Mockito.any(GameStateDto.class));
+        }
+
+        @Test
+        @DisplayName("Should should pass")
+        void aiPasses() {
+            // Arrange
+            UUID playerUUID = UUID.randomUUID();
+            final var playerId = new PlayerId(playerUUID);
+            final var match = new GameState(9, playerId);
+            match.passTurn(Stone.BLACK);
+            final var jpaEntity = JpaGameStateEntity.fromDomain(match);
+
+            when(jpaGameStateRepository.findById(match.getId().id()))
+                    .thenReturn(Optional.of(jpaEntity));
+            when(aiCatalog.askForMove(Mockito.any(GameStateDto.class)))
+                    .thenReturn(Optional.of(new AiAnswerDto(0, 0, 0, true)));
+
+            final var jwt_token = Jwt.withTokenValue("token")
+                                     .header("alg", "none")
+                                     .subject(playerUUID.toString())
+                                     .claim(StandardClaimNames.GIVEN_NAME, "test_user")
+                                     .claim(StandardClaimNames.FAMILY_NAME, "user")
+                                     .claim(StandardClaimNames.EMAIL, "test_user@test.be")
+                                     .build();
+
+            // Act
+            final var result = sut.letAiPlaceStone(jwt_token, match.getId().id());
+
+            // Assert
+            Assertions.assertNotNull(result.getBody());
+            Assertions.assertEquals(match.getId().id(), result.getBody().id());
+            Assertions.assertEquals(9, result.getBody().size());
+            TestHelpers.assertBoardCounts(result.getBody().board(), 81, 0, 0);
 
             Mockito.verify(jpaGameStateRepository).findById(Mockito.any(UUID.class));
             Mockito.verify(jpaGameStateRepository).save(Mockito.any(JpaGameStateEntity.class));

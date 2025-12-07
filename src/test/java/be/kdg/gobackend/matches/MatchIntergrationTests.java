@@ -32,12 +32,12 @@ class MatchIntergrationTests {
         @Test
         void get_match_should_return_200_with_valid_json_structure() throws Exception {
             // arrange
-            final var gameId = UUID.fromString("0b83d863-cbfb-4138-a210-9ea6df7653dc");
+            final var gameId = UUID.fromString("00000000-0000-0000-0000-000000000001");
             // act
             mockMvc.perform(get("/go/api/matches/{id}", gameId)
                             .with(jwt()
                                     .jwt(jwt -> jwt
-                                            .subject("0b906b06-53fe-4095-a3bd-32b8aa4e9aba")
+                                            .subject("10000000-0000-0000-0000-000000000001")
                                             .claim(StandardClaimNames.GIVEN_NAME, "test_user")
                                             .claim(StandardClaimNames.FAMILY_NAME, "user")
                                             .claim(StandardClaimNames.EMAIL, "test_user@test.be")
@@ -45,11 +45,15 @@ class MatchIntergrationTests {
                             ))
                     // assert
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value("0b83d863-cbfb-4138-a210-9ea6df7653dc"))
+                    .andExpect(jsonPath("$.id").value("00000000-0000-0000-0000-000000000001"))
                     .andExpect(jsonPath("$.board").isArray())
                     .andExpect(jsonPath("$.board[0]").isArray())
                     .andExpect(jsonPath("$.board[0][0]").value("_"))
-                    .andExpect(jsonPath("$.size").isNumber());
+                    .andExpect(jsonPath("$.size").isNumber())
+                    .andExpect(jsonPath("$.winner").value("EMPTY"))
+                    .andExpect(jsonPath("$.score").value(0.0))
+                    .andExpect(jsonPath("$.atTurn").value(true))
+                    .andExpect(jsonPath("$.isLastTurnPassed").value(false));
         }
 
         @Test
@@ -61,7 +65,7 @@ class MatchIntergrationTests {
                             .content("{\"size\": 9}")
                             .with(jwt()
                                     .jwt(jwt -> jwt
-                                            .subject("0b906b06-53fe-4095-a3bd-32b8aa4e9aba")
+                                            .subject("20000000-0000-0000-0000-000000000001")
                                             .claim(StandardClaimNames.GIVEN_NAME, "test_user")
                                             .claim(StandardClaimNames.FAMILY_NAME, "user")
                                             .claim(StandardClaimNames.EMAIL, "test_user@test.be")
@@ -75,13 +79,17 @@ class MatchIntergrationTests {
                     .andExpect(jsonPath("$.board[0]").isArray())
                     .andExpect(jsonPath("$.board[0].length()").value(9))
                     .andExpect(jsonPath("$.board[0][0]").value("_"))
-                    .andExpect(jsonPath("$.size").value(9));
+                    .andExpect(jsonPath("$.size").value(9))
+                   .andExpect(jsonPath("$.winner").value("EMPTY"))
+                   .andExpect(jsonPath("$.score").value(0.0))
+                   .andExpect(jsonPath("$.atTurn").value(true))
+                   .andExpect(jsonPath("$.isLastTurnPassed").value(false));
         }
 
         @Test
         void place_stone_should_place_stone_successfully() throws Exception {
             // arrange
-            final var gameId = UUID.fromString("0b83d863-cbfb-4138-a210-9ea6df7653dc");
+            final var gameId = UUID.fromString("00000000-0000-0000-0000-000000000002");
             // act
             mockMvc.perform(patch("/go/api/matches/{id}", gameId)
                             // arrange
@@ -89,7 +97,7 @@ class MatchIntergrationTests {
                             .content("{\"x\": 1,\"y\": 2}")
                             .with(jwt()
                                     .jwt(jwt -> jwt
-                                            .subject("0b906b06-53fe-4095-a3bd-32b8aa4e9aba")
+                                            .subject("10000000-0000-0000-0000-000000000002")
                                             .claim(StandardClaimNames.GIVEN_NAME, "test_user")
                                             .claim(StandardClaimNames.FAMILY_NAME, "user")
                                             .claim(StandardClaimNames.EMAIL, "test_user@test.be")
@@ -97,7 +105,49 @@ class MatchIntergrationTests {
                             ))
                     // assert
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.board[1][2]").value("B"));
+                    .andExpect(jsonPath("$.board[1][2]").value("B"))
+                    .andExpect(jsonPath("$.atTurn").value(false))
+                    .andExpect(jsonPath("$.isLastTurnPassed").value(false));
+        }
+
+        @Test
+        void pass_should_make_no_move_and_switch_turn() throws Exception {
+            // arrange
+            final var gameId = UUID.fromString("00000000-0000-0000-0000-000000000003");
+            // act
+            mockMvc.perform(patch("/go/api/matches/{id}/pass", gameId)
+                            .with(jwt()
+                                    .jwt(jwt -> jwt
+                                            .subject("10000000-0000-0000-0000-000000000003")
+                                            .claim(StandardClaimNames.GIVEN_NAME, "test_user")
+                                            .claim(StandardClaimNames.FAMILY_NAME, "user")
+                                            .claim(StandardClaimNames.EMAIL, "test_user@test.be")
+                                    )
+                            ))
+                    // assert
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.atTurn").value(false))
+                    .andExpect(jsonPath("$.isLastTurnPassed").value(true));
+        }
+
+        @Test
+        void pass_after_pass_should_end_game() throws Exception {
+            // arrange
+            final var gameId = UUID.fromString("00000000-0000-0000-0000-000000000004");
+            // act
+            mockMvc.perform(patch("/go/api/matches/{id}/pass", gameId)
+                                    .with(jwt()
+                                                  .jwt(jwt -> jwt
+                                                          .subject("10000000-0000-0000-0000-000000000004")
+                                                          .claim(StandardClaimNames.GIVEN_NAME, "test_user")
+                                                          .claim(StandardClaimNames.FAMILY_NAME, "user")
+                                                          .claim(StandardClaimNames.EMAIL, "test_user@test.be")
+                                                  )
+                                    ))
+                   // assert
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$.winner").value("BLACK"))
+                   .andExpect(jsonPath("$.score").value(74.5));
         }
     }
 
@@ -125,7 +175,6 @@ class MatchIntergrationTests {
 
         @Test
         void start_new_match_with_value_above_19_should_give_400() throws Exception {
-            final var playerUUID = "0b906b06-53fe-4095-a3bd-32b8aa4e9aba";
             // act
             mockMvc.perform(post("/go/api/matches")
                             // arrange
@@ -147,7 +196,7 @@ class MatchIntergrationTests {
         @Test
         void place_stone_should_return_400_if_out_bounds() throws Exception {
             // arrange
-            final var gameId = UUID.fromString("0b83d863-cbfb-4138-a210-9ea6df7653dc");
+            final var gameId = UUID.fromString("00000000-0000-0000-0000-000000000001");
             // act
             mockMvc.perform(patch("/go/api/matches/{id}", gameId)
                             // arrange
@@ -155,7 +204,7 @@ class MatchIntergrationTests {
                             .content("{\"x\": 1,\"y\": 99}")
                             .with(jwt()
                                     .jwt(jwt -> jwt
-                                            .subject("0b906b06-53fe-4095-a3bd-32b8aa4e9aba")
+                                            .subject("10000000-0000-0000-0000-000000000001")
                                             .claim(StandardClaimNames.GIVEN_NAME, "test_user")
                                             .claim(StandardClaimNames.FAMILY_NAME, "user")
                                             .claim(StandardClaimNames.EMAIL, "test_user@test.be")
@@ -187,14 +236,33 @@ class MatchIntergrationTests {
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.message").isString());
         }
+
+        @Test
+        void get_match_as_wrong_owner_is_hidden_and_not_found() throws Exception {
+            // arrange
+            final var gameId = UUID.fromString("00000000-0000-0000-0000-000000000001");
+            // act
+            mockMvc.perform(get("/go/api/matches/{id}", gameId)
+                                    .with(jwt()
+                                                  .jwt(jwt -> jwt
+                                                          .subject("10000000-0000-0000-0000-000000000002")
+                                                          .claim(StandardClaimNames.GIVEN_NAME, "test_user")
+                                                          .claim(StandardClaimNames.FAMILY_NAME, "user")
+                                                          .claim(StandardClaimNames.EMAIL, "test_user@test.be")
+                                                  )
+                                    ))
+                   // assert
+                   .andExpect(status().isNotFound())
+                   .andExpect(jsonPath("$.message").isString());
+        }
     }
 
     @Nested
     class SecurityFlows {
         @Test
-        void get_match_should_return_200_with_valid_json_structure() throws Exception {
+        void get_match_unautherised_fails() throws Exception {
             // arrange
-            final var gameId = UUID.fromString("0b83d863-cbfb-4138-a210-9ea6df7653dc");
+            final var gameId = UUID.fromString("00000000-0000-0000-0000-000000000001");
             // act
             mockMvc.perform(get("/go/api/matches/{id}", gameId))
                     // assert
@@ -202,7 +270,7 @@ class MatchIntergrationTests {
         }
 
         @Test
-        void start_new_match_creates_a_match_and_returns_it() throws Exception {
+        void start_new_match_unauthorized_fails() throws Exception {
             // act
             mockMvc.perform(post("/go/api/matches")
                             // arrange
@@ -213,9 +281,9 @@ class MatchIntergrationTests {
         }
 
         @Test
-        void place_stone_should_place_stone_successfully() throws Exception {
+        void place_stone_unautherised_fails() throws Exception {
             // arrange
-            final var gameId = UUID.fromString("0b83d863-cbfb-4138-a210-9ea6df7653dc");
+            final var gameId = UUID.fromString("00000000-0000-0000-0000-000000000001");
             // act
             mockMvc.perform(patch("/go/api/matches/{id}", gameId)
                             // arrange
