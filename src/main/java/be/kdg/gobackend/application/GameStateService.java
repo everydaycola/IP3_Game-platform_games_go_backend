@@ -11,10 +11,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-@Service
-@Transactional
-@Slf4j
-public class GameStateService {
+@Service @Transactional @Slf4j public class GameStateService {
 
     private final GameStateRepository gameStateRepository;
     private final AiCatalog aiCatalog;
@@ -24,9 +21,11 @@ public class GameStateService {
         this.aiCatalog = aiCatalog;
     }
 
-    public GameState getState(GameStateId stateId) {
+    public GameState getState(GameStateId stateId, PlayerId playerId) {
         log.info("getting the state with id {}", stateId);
-        return gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
+        final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
+        gameState.verifyPlayer(playerId);
+        return gameState;
     }
 
     public GameState start(PlayerId playerId, int size) {
@@ -36,20 +35,35 @@ public class GameStateService {
         return gameState;
     }
 
-    public GameState placeStone(GameStateId stateId, int x, int y) {
+    public GameState placeStone(GameStateId stateId, int x, int y, PlayerId playerId) {
         log.info("player in match {} placing a stone at {}, {}", stateId, x, y);
         final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
+        gameState.verifyPlayer(playerId);
         gameState.placeStone(x, y, Stone.BLACK);
         gameStateRepository.save(gameState);
         return gameState;
     }
 
-    public GameState letAiPlaceStone(GameStateId stateId) {
+    public GameState letAiPlaceStone(GameStateId stateId, PlayerId playerId) {
         log.info("ai placing a stone in match {}", stateId);
         final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
-        final var aiResponse = aiCatalog.askForMove(GameStateDto.from(gameState)).orElseThrow(
-                () -> new IllegalStateException("Ai could not make a move"));
-        gameState.placeStone(aiResponse.row(), aiResponse.col(), Stone.WHITE);
+        final var aiResponse = aiCatalog.askForMove(GameStateDto.from(gameState))
+                                        .orElseThrow(() -> new IllegalStateException("Ai could not make a move"));
+        gameState.verifyPlayer(playerId);
+        if (aiResponse.passed()) {
+            gameState.passTurn(Stone.WHITE);
+        } else {
+            gameState.placeStone(aiResponse.row(), aiResponse.col(), Stone.WHITE);
+        }
+        gameStateRepository.save(gameState);
+        return gameState;
+    }
+
+    public GameState passTurn(GameStateId stateId, PlayerId playerId) {
+        log.info("passing turn to player in match {}", stateId);
+        final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
+        gameState.verifyPlayer(playerId);
+        gameState.passTurn(Stone.BLACK);
         gameStateRepository.save(gameState);
         return gameState;
     }

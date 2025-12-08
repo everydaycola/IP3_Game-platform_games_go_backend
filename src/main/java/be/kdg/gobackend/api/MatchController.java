@@ -34,28 +34,38 @@ public class MatchController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GameStateDto> getGame(@PathVariable UUID id){
+    public ResponseEntity<GameStateDto> getGame(@AuthenticationPrincipal Jwt token, @PathVariable UUID id){
         log.info("Getting game with id {}", id);
         final var stateId = new GameStateId(id);
-        final var state = gameStateService.getState(stateId);
+        final var playerId = PlayerId.fromToken(token);
+        final var state = gameStateService.getState(stateId, playerId);
         return ResponseEntity.ok(GameStateDto.from(state));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<GameStateDto> placeStone(@PathVariable UUID id, @RequestBody NewStoneDto stone){
+    public ResponseEntity<GameStateDto> placeStone(@AuthenticationPrincipal Jwt token, @PathVariable UUID id, @RequestBody NewStoneDto stone){
         log.info("Player from match {} placing a stone at {}, {}", id, stone.x(), stone.y());
         final var stateId = new GameStateId(id);
-        final var state = gameStateService.placeStone(stateId, stone.x(), stone.y());
+        final var playerId = PlayerId.fromToken(token);
+        final var state = gameStateService.placeStone(stateId, stone.x(), stone.y(), playerId);
         return ResponseEntity.ok(GameStateDto.from(state));
     }
 
     @PatchMapping("/{id}/ai")
-    public ResponseEntity<GameStateDto> letAiPlaceStone(@PathVariable UUID id){
+    public ResponseEntity<GameStateDto> letAiPlaceStone(@AuthenticationPrincipal Jwt token, @PathVariable UUID id){
         log.info("Letting the AI place it's stone in match {}", id);
         final var stateId = new GameStateId(id);
-        final var state = gameStateService.letAiPlaceStone(stateId);
+        final var playerId = PlayerId.fromToken(token);
+        final var state = gameStateService.letAiPlaceStone(stateId, playerId);
         return ResponseEntity.ok(GameStateDto.from(state));
     }
 
-
+    @PatchMapping("/{id}/pass")
+    public ResponseEntity<GameStateDto> passTurn(@AuthenticationPrincipal Jwt token, @PathVariable UUID id){
+        log.info("pass in match {}", id);
+        final var stateId = new GameStateId(id);
+        final var playerId = PlayerId.fromToken(token);
+        final var state = gameStateService.passTurn(stateId, playerId);
+        return ResponseEntity.ok(GameStateDto.from(state));
+    }
 }
