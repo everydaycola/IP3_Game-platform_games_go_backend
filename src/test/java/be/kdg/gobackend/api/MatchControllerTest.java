@@ -28,7 +28,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 @WebMvcTest(MatchController.class)
 @Import({GameStateService.class, DbGameStateRepository.class})
@@ -61,7 +60,7 @@ class MatchControllerTest {
             when(aiCatalog.askForMove(Mockito.any(GameStateDto.class)))
                     .thenReturn(Optional.of(aiAnswerDto));
 
-            final var jwt_token = Jwt.withTokenValue("token")
+            final var jwtToken = Jwt.withTokenValue("token")
                                      .header("alg", "none")
                                      .subject(playerUUID.toString())
                                      .claim(StandardClaimNames.GIVEN_NAME, "test_user")
@@ -70,7 +69,7 @@ class MatchControllerTest {
                                      .build();
 
             // Act
-            final var result = sut.letAiPlaceStone(jwt_token, match.getId().id());
+            final var result = sut.letAiPlaceStone(jwtToken, match.getId().id());
 
             // Assert
             Assertions.assertNotNull(result.getBody());
@@ -99,7 +98,7 @@ class MatchControllerTest {
             when(aiCatalog.askForMove(Mockito.any(GameStateDto.class)))
                     .thenReturn(Optional.of(new AiAnswerDto(0, 0, 0, true)));
 
-            final var jwt_token = Jwt.withTokenValue("token")
+            final var jwtToken = Jwt.withTokenValue("token")
                                      .header("alg", "none")
                                      .subject(playerUUID.toString())
                                      .claim(StandardClaimNames.GIVEN_NAME, "test_user")
@@ -108,7 +107,7 @@ class MatchControllerTest {
                                      .build();
 
             // Act
-            final var result = sut.letAiPlaceStone(jwt_token, match.getId().id());
+            final var result = sut.letAiPlaceStone(jwtToken, match.getId().id());
 
             // Assert
             Assertions.assertNotNull(result.getBody());
@@ -139,7 +138,7 @@ class MatchControllerTest {
             when(aiCatalog.askForMove(Mockito.any(GameStateDto.class)))
                     .thenReturn(Optional.empty());
 
-            final var jwt_token = Jwt.withTokenValue("token")
+            final var jwtToken = Jwt.withTokenValue("token")
                                      .header("alg", "none")
                                      .subject(playerUUID.toString())
                                      .claim(StandardClaimNames.GIVEN_NAME, "test_user")
@@ -148,7 +147,7 @@ class MatchControllerTest {
                                      .build();
 
             // Act & Assert
-            assertThatThrownBy(() -> sut.letAiPlaceStone(jwt_token, match.getId().id()))
+            assertThatThrownBy(() -> sut.letAiPlaceStone(jwtToken, match.getId().id()))
                     .isInstanceOf(IllegalStateException.class);
 
             Mockito.verify(jpaGameStateRepository).findById(Mockito.any(UUID.class));

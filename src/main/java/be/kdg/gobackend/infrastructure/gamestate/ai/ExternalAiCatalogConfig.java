@@ -8,7 +8,7 @@ import org.springframework.web.client.RestClient;
 @Configuration
 public class ExternalAiCatalogConfig {
     @Bean("aiCatalogApi")
-    RestClient ExternalAiCatalogTemplate(@Value("${ai-catalog-api.url}") final String url) {
+    RestClient externalAiCatalogTemplate(@Value("${ai-catalog-api.url}") final String url) {
         return RestClient.create(url);
     }
 }

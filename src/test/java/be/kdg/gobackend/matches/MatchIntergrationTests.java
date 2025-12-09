@@ -310,7 +310,7 @@ class MatchIntergrationTests {
                             .contentType("application/json")
                             .content("{\"x\": 1,\"y\": 2}"))
                     // assert
-                    .andExpect(status().isUnauthorized());;
+                    .andExpect(status().isUnauthorized());
         }
     }
 }
