@@ -1,6 +1,7 @@
 package be.kdg.gobackend.application;
 
 import be.kdg.gobackend.api.dto.GameStateDto;
+import be.kdg.gobackend.domain.exception.NotFoundException;
 import be.kdg.gobackend.domain.game.GameState;
 import be.kdg.gobackend.domain.game.GameStateId;
 import be.kdg.gobackend.domain.game.Stone;
@@ -66,5 +67,11 @@ import org.springframework.stereotype.Service;
         gameState.passTurn(Stone.BLACK);
         gameStateRepository.save(gameState);
         return gameState;
+    }
+
+    public GameState getStateForPlayer(PlayerId playerId) {
+        log.info("getting the state for player {}", playerId);
+        return gameStateRepository.getGameForPlayer(playerId)
+                .orElseThrow(() -> new NotFoundException("No game found for player " + playerId.id()));
     }
 }
