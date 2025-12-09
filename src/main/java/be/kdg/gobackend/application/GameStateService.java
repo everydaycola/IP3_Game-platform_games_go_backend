@@ -69,9 +69,9 @@ import org.springframework.stereotype.Service;
         return gameState;
     }
 
-    public GameState getStateForPlayer(PlayerId playerId) {
+    public GameState getPlayingStateForPlayer(PlayerId playerId) {
         log.info("getting the state for player {}", playerId);
-        return gameStateRepository.getGameForPlayer(playerId)
+        return gameStateRepository.getPlayingGameForPlayer(playerId)
                 .orElseThrow(() -> new NotFoundException("No game found for player " + playerId.id()));
     }
 }

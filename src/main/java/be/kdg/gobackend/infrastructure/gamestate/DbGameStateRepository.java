@@ -2,6 +2,7 @@ package be.kdg.gobackend.infrastructure.gamestate;
 
 import be.kdg.gobackend.domain.game.GameState;
 import be.kdg.gobackend.domain.game.GameStateId;
+import be.kdg.gobackend.domain.game.Stone;
 import be.kdg.gobackend.domain.player.PlayerId;
 import be.kdg.gobackend.domain.repository.GameStateRepository;
 import be.kdg.gobackend.infrastructure.gamestate.jpa.JpaGameStateEntity;
@@ -33,8 +34,8 @@ public class DbGameStateRepository implements GameStateRepository {
     }
 
     @Override
-    public Optional<GameState> getGameForPlayer(PlayerId playerId) {
-        log.info("Getting game for player from database");
-        return gameStateRepository.findByPlayer(playerId.id()).map(JpaGameStateEntity::toDomain);
+    public Optional<GameState> getPlayingGameForPlayer(PlayerId playerId) {
+        log.info("Getting game for player {} from database", playerId.id());
+        return gameStateRepository.findFirstByPlayerAndWinner(playerId.id(), Stone.EMPTY).map(JpaGameStateEntity::toDomain);
     }
 }

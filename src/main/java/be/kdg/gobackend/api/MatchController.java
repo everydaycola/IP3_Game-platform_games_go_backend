@@ -46,7 +46,7 @@ public class MatchController {
     public ResponseEntity<GameStateDto> getPlayingGame(@AuthenticationPrincipal Jwt token){
         final var playerId = PlayerId.fromToken(token);
         log.info("Getting playing game for user {}", playerId.id());
-        final var state = gameStateService.getStateForPlayer(playerId);
+        final var state = gameStateService.getPlayingStateForPlayer(playerId);
         return ResponseEntity.ok(GameStateDto.from(state));
     }
 
