@@ -9,5 +9,5 @@ import java.util.Optional;
 public interface GameStateRepository {
     void save(GameState gameState);
     Optional<GameState> get(GameStateId id);
-    Optional<GameState> getPlayingGameForPlayer(PlayerId playerId);
+    Optional<GameState> getPlayingGameForPlayerAndSize(PlayerId playerId, int size);
 }

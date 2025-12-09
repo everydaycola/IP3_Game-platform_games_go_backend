@@ -42,11 +42,11 @@ public class MatchController {
         return ResponseEntity.ok(GameStateDto.from(state));
     }
 
-    @GetMapping("/playing")
-    public ResponseEntity<GameStateDto> getPlayingGame(@AuthenticationPrincipal Jwt token){
+    @GetMapping("/playing/{size}")
+    public ResponseEntity<GameStateDto> getPlayingGame(@AuthenticationPrincipal Jwt token, @PathVariable int size){
         final var playerId = PlayerId.fromToken(token);
         log.info("Getting playing game for user {}", playerId.id());
-        final var state = gameStateService.getPlayingStateForPlayer(playerId);
+        final var state = gameStateService.getPlayingStateForPlayerAndState(playerId, size);
         return ResponseEntity.ok(GameStateDto.from(state));
     }
 
