@@ -75,7 +75,7 @@ public class Board {
     }
 
     private TerritoryResult analyzeTerritory(int startX, int startY, boolean[][] visited) {
-        var size = 0;
+        var territorySize = 0;
         var touchesBlack = false;
         var touchesWhite = false;
 
@@ -85,7 +85,7 @@ public class Board {
 
         while (!queue.isEmpty()) {
             final var current = queue.poll();
-            size++;
+            territorySize++;
 
             int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
@@ -112,7 +112,7 @@ public class Board {
             }
         }
 
-        return new TerritoryResult(size, touchesBlack, touchesWhite);
+        return new TerritoryResult(territorySize, touchesBlack, touchesWhite);
     }
 
     private record TerritoryResult(int size, boolean touchesBlack, boolean touchesWhite) {}
