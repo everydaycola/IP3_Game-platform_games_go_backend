@@ -3,18 +3,21 @@ package be.kdg.gobackend.domain.game;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 @Getter
 @AllArgsConstructor
 public class Board {
+    private static final int MIN_SIZE = 5;
+    private static final int MAX_SIZE = 19;
+    private static final int[][] DIRECTIONS = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+
     private final int size;
     private final Stone[] stones;
 
     public Board(int size) {
-        if (size < 5 || size > 19) throw new IllegalArgumentException("Board size must be between 5 and 19");
+        if (size < MIN_SIZE || size > MAX_SIZE)
+            throw new IllegalArgumentException("Board size must be between %d and %d".formatted(MIN_SIZE, MAX_SIZE));
         this.size = size;
         this.stones = new Stone[size * size];
         Arrays.fill(this.stones, Stone.EMPTY);
@@ -30,16 +33,50 @@ public class Board {
         return board;
     }
 
+
     public void placeStone(int x, int y, Stone stone) {
-        if (0 > x || x >= size || 0 > y || y >= size)
+        if (isOutOfBounds(x, y))
             throw new IllegalArgumentException("Position is out of bounds");
         if (getStone(x, y) != Stone.EMPTY)
             throw new IllegalStateException("Spot is already taken");
         stones[y * size + x] = stone;
+        checkCaptures(x, y);
+    }
+
+    private boolean isOutOfBounds(int x, int y) {
+        return 0 > x || x >= size || 0 > y || y >= size;
+    }
+
+    private void removeStone(int x, int y) {
+        stones[y * size + x] = Stone.EMPTY;
     }
 
     public Stone getStone(int x, int y) {
         return stones[y * size + x];
+    }
+
+    private void checkCaptures(int x, int y) {
+        // liberties / neighbors
+        final var stone = getStone(x, y);
+        for (int[] dir : DIRECTIONS) {
+            final var nx = x + dir[0];
+            final var ny = y + dir[1];
+            // out of bounds
+            if (isOutOfBounds(nx, ny)) continue;
+            final var neighborStone = getStone(nx, ny);
+            if (neighborStone == Stone.EMPTY || neighborStone == stone) continue;
+            tryCapture(nx, ny, neighborStone);
+        }
+        tryCapture(x, y, stone);
+    }
+
+    private boolean tryCapture(int x, int y, Stone stone) {
+        final var visited = new boolean[size][size];
+        final var result = analyseGroup(x, y, visited, stone);
+        if (!result.touches.contains(Stone.EMPTY))
+            for (Point point : result.visitedPoints())
+                removeStone(point.x, point.y);
+        return !result.touches.contains(Stone.EMPTY);
     }
 
     // Scoring Logic
@@ -60,12 +97,7 @@ public class Board {
                     // for empty tiles, do an analysis to find the terretory size
                     case EMPTY -> {
                         if (visited[x][y]) continue;
-                        final var result = analyzeTerritory(x, y, visited);
-                        if (result.touchesBlack && !result.touchesWhite) {
-                            score += result.size;
-                        } else if (result.touchesWhite && !result.touchesBlack) {
-                            score -= result.size;
-                        }
+                        score += calculateTerritoryScore(x, y, visited);
                     }
                 }
             }
@@ -74,48 +106,54 @@ public class Board {
         return score;
     }
 
-    private TerritoryResult analyzeTerritory(int startX, int startY, boolean[][] visited) {
-        var territorySize = 0;
-        var touchesBlack = false;
-        var touchesWhite = false;
+    private double calculateTerritoryScore(int x, int y, boolean[][] visited) {
+        final var result = analyseGroup(x, y, visited, Stone.EMPTY);
+        final var touchesBlack = result.touches.contains(Stone.BLACK);
+        final var touchesWhite = result.touches.contains(Stone.WHITE);
+        if (touchesBlack != touchesWhite) {
+            final var groupSize = result.visitedPoints().size();
+            return touchesBlack ? groupSize : -groupSize;
+        }
+        return 0.0;
+    }
 
-        final Queue <Point> queue = new LinkedList <>();
-        queue.add(new Point(startX, startY));
+    private TerritoryResult analyseGroup(int startX, int startY, boolean[][] visited, Stone group) {
+        final var touches = new HashSet<Stone>();
+        touches.add(group);
+        final var visitedPoints = new HashSet<Point>();
+
+        final var queue = new ArrayDeque<Point>();
+        final var point = new Point(startX, startY);
+        queue.add(point);
+        visitedPoints.add(point);
         visited[startX][startY] = true;
 
         while (!queue.isEmpty()) {
             final var current = queue.poll();
-            territorySize++;
 
-            int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
-
-            for (int[] dir : directions) {
+            for (final var dir : DIRECTIONS) {
                 final var nx = current.x + dir[0];
                 final var ny = current.y + dir[1];
 
-                if (nx < 0 || nx >= this.size || ny < 0 || ny >= this.size) {
-                    continue;
-                }
+                // out of bounds
+                if (isOutOfBounds(nx, ny)) continue;
 
                 final var neighborStone = getStone(nx, ny);
 
-                switch (neighborStone) {
-                    case BLACK -> touchesBlack = true;
-                    case WHITE -> touchesWhite = true;
-                    case EMPTY -> {
-                        if (!visited[nx][ny]) {
-                            visited[nx][ny] = true;
-                            queue.add(new Point(nx, ny));
-                        }
-                    }
+                touches.add(neighborStone);
+                if (neighborStone == group && !visited[nx][ny]) {
+                    visited[nx][ny] = true;
+                    final var newPoint = new Point(nx, ny);
+                    queue.add(newPoint);
+                    visitedPoints.add(newPoint);
                 }
             }
         }
 
-        return new TerritoryResult(territorySize, touchesBlack, touchesWhite);
+        return new TerritoryResult(touches, visitedPoints);
     }
 
-    private record TerritoryResult(int size, boolean touchesBlack, boolean touchesWhite) {}
+    private record TerritoryResult(Set<Stone> touches, Set<Point> visitedPoints) {}
 
     private record Point(int x, int y) {}
 }
