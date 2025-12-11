@@ -1,0 +1,11 @@
+{
+  "id": "e3b0c442-98fc-4dcb-8b66-3a9c5f993bcd",
+  "name": "Go",
+  "description": "An ancient abstract strategy board game originating from East Asia.",
+  "price": 29.99,
+  "image": "go.png",
+  "icon": "",
+  "genre": "Strategy",
+  "url": "https://go.com",
+  "achievements": []
+}
