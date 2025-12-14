@@ -59,12 +59,17 @@ docker-publish:
   dependencies:
     - build
     - test
-  variables:
-    IMAGE_TAG: $CI_REGISTRY_IMAGE:latest
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
   script:
-    - docker build -t $IMAGE_TAG .
-    - docker push $IMAGE_TAG
+    - docker build -t $DOCKER_TAG .
+    - docker push $DOCKER_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
+      variables:
+        DOCKER_TAG: $CI_REGISTRY_IMAGE:latest
+      
+    - if: $CI_COMMIT_BRANCH == "experimental-deployment"
+      when: manual
+      variables:
+        DOCKER_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
