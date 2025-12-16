@@ -1,15 +1,18 @@
 package be.kdg.gobackend.infrastructure.gamestate.ai.dtos;
 
+import be.kdg.gobackend.domain.game.GameState;
+
 public record AiRequestBodyDto(
         String[][] boardState,
         String currentPlayer,
-        int iterations
+        boolean isLastTurnPassed
+
 ) {
-    public static AiRequestBodyDto from(String[][] boardState) {
+    public static AiRequestBodyDto from(GameState gameState) {
         return new AiRequestBodyDto(
-                boardState,
+                gameState.getBoardForDto(),
                 "WHITE",
-                40
+                gameState.isLastTurnPassed()
         );
     }
 }

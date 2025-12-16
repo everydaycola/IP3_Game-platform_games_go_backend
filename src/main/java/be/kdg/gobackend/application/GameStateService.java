@@ -49,7 +49,7 @@ import org.springframework.stereotype.Service;
     public GameState letAiPlaceStone(GameStateId stateId, PlayerId playerId) {
         log.info("ai placing a stone in match {}", stateId);
         final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
-        final var aiResponse = aiCatalog.askForMove(AiRequestBodyDto.from(gameState.getBoardForDto()))
+        final var aiResponse = aiCatalog.askForMove(AiRequestBodyDto.from(gameState))
                                         .orElseThrow(() -> new IllegalStateException("Ai could not make a move"));
         gameState.verifyPlayer(playerId);
         log.info("ai chose row {}, col {}, move {}", aiResponse.row(), aiResponse.col(), aiResponse.best_move());
