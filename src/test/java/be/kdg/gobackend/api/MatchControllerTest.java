@@ -1,7 +1,7 @@
 package be.kdg.gobackend.api;
 
 import be.kdg.gobackend.TestHelpers;
-import be.kdg.gobackend.api.dto.GameStateDto;
+import be.kdg.gobackend.infrastructure.gamestate.ai.dtos.AiRequestBodyDto;
 import be.kdg.gobackend.application.GameStateService;
 import be.kdg.gobackend.domain.game.GameState;
 import be.kdg.gobackend.domain.game.Stone;
@@ -56,8 +56,8 @@ class MatchControllerTest {
 
             when(jpaGameStateRepository.findById(match.getId().id()))
                     .thenReturn(Optional.of(jpaEntity));
-            final var aiAnswerDto = new AiAnswerDto(50, 5, 6, false);
-            when(aiCatalog.askForMove(Mockito.any(GameStateDto.class)))
+            final var aiAnswerDto = new AiAnswerDto(50, 5, 6);
+            when(aiCatalog.askForMove(Mockito.any(AiRequestBodyDto.class)))
                     .thenReturn(Optional.of(aiAnswerDto));
 
             final var jwtToken = Jwt.withTokenValue("token")
@@ -80,7 +80,7 @@ class MatchControllerTest {
 
             Mockito.verify(jpaGameStateRepository).findById(Mockito.any(UUID.class));
             Mockito.verify(jpaGameStateRepository).save(Mockito.any(JpaGameStateEntity.class));
-            Mockito.verify(aiCatalog).askForMove(Mockito.any(GameStateDto.class));
+            Mockito.verify(aiCatalog).askForMove(Mockito.any(AiRequestBodyDto.class));
         }
 
         @Test
@@ -95,8 +95,8 @@ class MatchControllerTest {
 
             when(jpaGameStateRepository.findById(match.getId().id()))
                     .thenReturn(Optional.of(jpaEntity));
-            when(aiCatalog.askForMove(Mockito.any(GameStateDto.class)))
-                    .thenReturn(Optional.of(new AiAnswerDto(0, 0, 0, true)));
+            when(aiCatalog.askForMove(Mockito.any(AiRequestBodyDto.class)))
+                    .thenReturn(Optional.of(new AiAnswerDto(81, -1, -1)));
 
             final var jwtToken = Jwt.withTokenValue("token")
                                      .header("alg", "none")
@@ -117,7 +117,7 @@ class MatchControllerTest {
 
             Mockito.verify(jpaGameStateRepository).findById(Mockito.any(UUID.class));
             Mockito.verify(jpaGameStateRepository).save(Mockito.any(JpaGameStateEntity.class));
-            Mockito.verify(aiCatalog).askForMove(Mockito.any(GameStateDto.class));
+            Mockito.verify(aiCatalog).askForMove(Mockito.any(AiRequestBodyDto.class));
         }
     }
 
@@ -135,7 +135,7 @@ class MatchControllerTest {
 
             when(jpaGameStateRepository.findById(match.getId().id()))
                     .thenReturn(Optional.of(jpaEntity));
-            when(aiCatalog.askForMove(Mockito.any(GameStateDto.class)))
+            when(aiCatalog.askForMove(Mockito.any(AiRequestBodyDto.class)))
                     .thenReturn(Optional.empty());
 
             final var jwtToken = Jwt.withTokenValue("token")
@@ -152,7 +152,7 @@ class MatchControllerTest {
 
             Mockito.verify(jpaGameStateRepository).findById(Mockito.any(UUID.class));
             Mockito.verify(jpaGameStateRepository, never()).save(Mockito.any(JpaGameStateEntity.class));
-            Mockito.verify(aiCatalog).askForMove(Mockito.any(GameStateDto.class));
+            Mockito.verify(aiCatalog).askForMove(Mockito.any(AiRequestBodyDto.class));
         }
     }
 }

@@ -8,6 +8,7 @@ import be.kdg.gobackend.domain.game.Stone;
 import be.kdg.gobackend.domain.player.PlayerId;
 import be.kdg.gobackend.domain.repository.AiCatalog;
 import be.kdg.gobackend.domain.repository.GameStateRepository;
+import be.kdg.gobackend.infrastructure.gamestate.ai.dtos.AiRequestBodyDto;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -48,10 +49,11 @@ import org.springframework.stereotype.Service;
     public GameState letAiPlaceStone(GameStateId stateId, PlayerId playerId) {
         log.info("ai placing a stone in match {}", stateId);
         final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
-        final var aiResponse = aiCatalog.askForMove(GameStateDto.from(gameState))
+        final var aiResponse = aiCatalog.askForMove(AiRequestBodyDto.from(gameState))
                                         .orElseThrow(() -> new IllegalStateException("Ai could not make a move"));
         gameState.verifyPlayer(playerId);
-        if (aiResponse.passed()) {
+        log.info("ai chose row {}, col {}, move {}", aiResponse.row(), aiResponse.col(), aiResponse.best_move());
+        if (aiResponse.col() == -1 && aiResponse.row() == -1) {
             gameState.passTurn(Stone.WHITE);
         } else {
             gameState.placeStone(aiResponse.row(), aiResponse.col(), Stone.WHITE);

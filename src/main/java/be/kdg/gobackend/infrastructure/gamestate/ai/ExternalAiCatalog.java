@@ -1,6 +1,6 @@
 package be.kdg.gobackend.infrastructure.gamestate.ai;
 
-import be.kdg.gobackend.api.dto.GameStateDto;
+import be.kdg.gobackend.infrastructure.gamestate.ai.dtos.AiRequestBodyDto;
 import be.kdg.gobackend.domain.repository.AiCatalog;
 import be.kdg.gobackend.infrastructure.gamestate.ai.dtos.AiAnswerDto;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +22,13 @@ public class ExternalAiCatalog implements AiCatalog {
         this.restClient = restClient;
     }
 
-    @Override public Optional<AiAnswerDto> askForMove(GameStateDto gameStateDto) {
+    @Override public Optional<AiAnswerDto> askForMove(AiRequestBodyDto aiRequestBodyDto) {
         log.info("Asking the Ai to make a move");
         try {
             final var response = restClient
                     .post()
                     .uri("/ai-move")
-                    .body(gameStateDto)
+                    .body(aiRequestBodyDto)
                     .retrieve()
                     .body(AiAnswerDto.class);
 
