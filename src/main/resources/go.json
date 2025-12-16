@@ -17,6 +17,21 @@
       "id": "9b2c7e4a-3f1d-4a82-9c3b-2b8a6d4f1e57",
       "name": "Go Home",
       "description": "Lose a game of go"
+    },
+    {
+      "id": "9dcd4a33-ef51-4d55-9dce-aaf28573be0e",
+      "name": "LET'S GOOO!!!",
+      "description": "Win a game of go"
+    },
+    {
+      "id": "55b70408-17b5-499a-820e-c2254dea694b",
+      "name": "Go ahead",
+      "description": "Pass your turn"
+    },
+    {
+      "id": "c6f78e0c-b0f4-443b-b678-57abc3f84b9e",
+      "name": "Go big or go home",
+      "description": "Start a game on 19x19 board"
     }
   ]
 }
