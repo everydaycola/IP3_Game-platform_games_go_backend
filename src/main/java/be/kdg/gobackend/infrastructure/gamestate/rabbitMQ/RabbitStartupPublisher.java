@@ -51,11 +51,10 @@ public class RabbitStartupPublisher {
                     return;
                 }
 
-                RegisterGameMessage message = new RegisterGameMessage(updatedDto);
                 rabbitTemplate.convertAndSend(
                         properties.getExchangeName(),
                         properties.getRegisterGameBinding(),
-                        message
+                        new RegisterGameMessage(updatedDto)
                 );
                 log.info("Startup game message sent to RabbitMQ: {}", updatedDto);
 
