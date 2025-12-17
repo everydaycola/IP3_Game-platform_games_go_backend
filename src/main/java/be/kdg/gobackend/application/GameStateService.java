@@ -1,7 +1,5 @@
 package be.kdg.gobackend.application;
 
-import be.kdg.gobackend.api.dto.GameStateDto;
-import be.kdg.gobackend.config.rabbitMQ.RabbitMQProperties;
 import be.kdg.gobackend.domain.achievements.Achievement;
 import be.kdg.gobackend.domain.exception.NotFoundException;
 import be.kdg.gobackend.domain.game.GameState;
@@ -11,7 +9,7 @@ import be.kdg.gobackend.domain.player.PlayerId;
 import be.kdg.gobackend.domain.repository.AiCatalog;
 import be.kdg.gobackend.domain.repository.GameStateRepository;
 import be.kdg.gobackend.infrastructure.gamestate.ai.dtos.AiRequestBodyDto;
-import be.kdg.gobackend.infrastructure.gamestate.rabbitMQ.AchievementPublisher;
+import be.kdg.gobackend.infrastructure.gamestate.rabbitMQ.RabbitAchievementPublisher;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +23,7 @@ public class GameStateService {
 
     private final GameStateRepository gameStateRepository;
     private final AiCatalog aiCatalog;
-    private final AchievementPublisher achievementPublisher;
+    private final RabbitAchievementPublisher achievementPublisher;
 
     public GameState getState(GameStateId stateId, PlayerId playerId) {
         log.info("getting the state with id {}", stateId);

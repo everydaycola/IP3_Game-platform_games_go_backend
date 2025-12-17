@@ -7,8 +7,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.RabbitMQContainer;
+import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.nginx.NginxContainer;
+import org.testcontainers.utility.DockerImageName;
 
+import java.time.Duration;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -21,8 +30,38 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Testcontainers
 @ActiveProfiles("test")
 class MatchIntergrationTests {
+
+    private static final DockerImageName NGINX_IMAGE =
+            DockerImageName.parse("nginx:1.27-alpine");
+
+    @Container
+    static final NginxContainer nginx = new NginxContainer(NGINX_IMAGE)
+            .waitingFor(new HttpWaitStrategy()
+                    .forPath("/")
+                    .forStatusCode(200)
+                    .withStartupTimeout(Duration.ofSeconds(30)));
+
+    @Container
+    static final RabbitMQContainer rabbit = new RabbitMQContainer("rabbitmq:3.12-management");
+
+    @DynamicPropertySource
+    static void configureRabbit(DynamicPropertyRegistry registry) {
+        registry.add("spring.rabbitmq.host", rabbit::getHost);
+        registry.add("spring.rabbitmq.port", rabbit::getAmqpPort);
+        registry.add("spring.rabbitmq.username", rabbit::getAdminUsername);
+        registry.add("spring.rabbitmq.password", rabbit::getAdminPassword);
+        registry.add("spring.rabbitmq.fourteengames.register-game-queue", () -> "register_game");
+    }
+
+    @DynamicPropertySource
+    static void configureNginx(DynamicPropertyRegistry registry) {
+        registry.add("urlchecker.base-url", () ->
+                "http://" + nginx.getHost() + ":" + nginx.getMappedPort(80)
+        );
+    }
 
     @Autowired
     private MockMvc mockMvc;

@@ -12,7 +12,7 @@ import be.kdg.gobackend.infrastructure.gamestate.DbGameStateRepository;
 import be.kdg.gobackend.infrastructure.gamestate.ai.dtos.AiAnswerDto;
 import be.kdg.gobackend.infrastructure.gamestate.jpa.JpaGameStateEntity;
 import be.kdg.gobackend.infrastructure.gamestate.jpa.JpaGameStateRepository;
-import be.kdg.gobackend.infrastructure.gamestate.rabbitMQ.AchievementPublisher;
+import be.kdg.gobackend.infrastructure.gamestate.rabbitMQ.RabbitAchievementPublisher;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -44,7 +44,7 @@ class MatchControllerTest {
     private AiCatalog aiCatalog;
 
     @MockitoBean
-    private AchievementPublisher achievementPublisher;
+    private RabbitAchievementPublisher achievementPublisher;
 
     @Nested
     @DisplayName("Success Flows")

@@ -34,6 +34,9 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql'
     annotationProcessor("org.projectlombok:lombok")
     implementation "io.micrometer:micrometer-registry-prometheus"
+    testImplementation "org.testcontainers:junit-jupiter"
+    testImplementation "org.testcontainers:rabbitmq"
+    testImplementation "org.testcontainers:testcontainers-nginx:2.0.2"
 }
 
 tasks.named('test') {
