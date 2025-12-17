@@ -3,10 +3,9 @@
   "name": "Go",
   "description": "An ancient abstract strategy board game originating from East Asia.",
   "price": 29.99,
-  "image": "go.png",
-  "icon": "",
+  "image": "https://media.istockphoto.com/id/1286732858/vector/go-game-icon-vector-trendy-flat-go-game-icon-from-sport-collection-isolated-on-white.jpg?s=612x612&w=0&k=20&c=8hO8ahHh2Gtub84Rpy7Vc_rx9OrwFjMEqdGLpdHbYoU=",
+  "icon": "https://static.thenounproject.com/png/5689504-200.png",
   "genre": "Strategy",
-  "url": "https://go.com",
   "achievements": [
     {
       "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
