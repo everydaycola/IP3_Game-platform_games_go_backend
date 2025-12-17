@@ -1,15 +1,13 @@
 package be.kdg.gobackend.infrastructure.gamestate.rabbitMQ;
 
-import be.kdg.gobackend.api.dto.registeration.AchievementDto;
-import be.kdg.gobackend.config.rabbitMQ.RabbitMQConfig;
 import be.kdg.gobackend.config.rabbitMQ.RabbitMQProperties;
 import be.kdg.gobackend.domain.achievements.Achievement;
 import be.kdg.gobackend.infrastructure.gamestate.rabbitMQ.messages.AchievementMessageDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -22,10 +20,10 @@ public class AchievementPublisher {
 
     // The method now takes the Enum, not a String ID
     public void unlock(UUID playerId, Achievement achievement) {
-
+        log.info("Sending achievement unlocked message for player {} and achievement {} : {} ({})", playerId, achievement.getTitle(), achievement.getDescription(), achievement.getId());
         rabbitTemplate.convertAndSend(
                 properties.getExchangeName(),
-                "game.achievement.unlocked",
+                properties.getUnlockAchievementBinding(),
                 new AchievementMessageDto(
                     playerId,
                     achievement.getId()

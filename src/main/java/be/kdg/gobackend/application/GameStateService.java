@@ -15,7 +15,6 @@ import be.kdg.gobackend.infrastructure.gamestate.rabbitMQ.AchievementPublisher;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -50,10 +49,14 @@ public class GameStateService {
         gameState.verifyPlayer(playerId);
         gameState.placeStone(x, y, Stone.BLACK);
         gameStateRepository.save(gameState);
-        if (gameState.getWinner().equals(Stone.BLACK)){
-            achievementPublisher.unlock(playerId.id(), Achievement.LETS_GOOO);
-        } else {
-            achievementPublisher.unlock(playerId.id(), Achievement.GO_HOME);
+        switch (gameState.getWinner()) {
+            case BLACK:
+                achievementPublisher.unlock(playerId.id(), Achievement.LETS_GOOO);
+                break;
+            case WHITE:
+                achievementPublisher.unlock(playerId.id(), Achievement.GO_HOME);
+                break;
+            case EMPTY: // do nothing
         }
         return gameState;
     }
