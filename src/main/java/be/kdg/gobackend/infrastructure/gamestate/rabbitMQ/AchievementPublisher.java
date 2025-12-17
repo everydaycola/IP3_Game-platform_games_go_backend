@@ -13,15 +13,12 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class AchievementPublisher {
 
     private final RabbitTemplate rabbitTemplate;
     private final RabbitMQProperties properties;
-
-    public AchievementPublisher(RabbitTemplate rabbitTemplate, RabbitMQProperties properties) {
-        this.rabbitTemplate = rabbitTemplate;
-        this.properties = properties;
-    }
 
     // The method now takes the Enum, not a String ID
     public void unlock(UUID playerId, Achievement achievement) {

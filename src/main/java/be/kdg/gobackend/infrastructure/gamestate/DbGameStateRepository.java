@@ -7,6 +7,7 @@ import be.kdg.gobackend.domain.player.PlayerId;
 import be.kdg.gobackend.domain.repository.GameStateRepository;
 import be.kdg.gobackend.infrastructure.gamestate.jpa.JpaGameStateEntity;
 import be.kdg.gobackend.infrastructure.gamestate.jpa.JpaGameStateRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -14,13 +15,10 @@ import java.util.Optional;
 
 @Slf4j
 @Repository
+@RequiredArgsConstructor
 public class DbGameStateRepository implements GameStateRepository {
 
     final JpaGameStateRepository gameStateRepository;
-
-    public DbGameStateRepository(JpaGameStateRepository gameStateRepository) {
-        this.gameStateRepository = gameStateRepository;
-    }
 
     @Override
     public void save(GameState gameState) {

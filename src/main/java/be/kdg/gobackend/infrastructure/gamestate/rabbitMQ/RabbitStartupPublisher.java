@@ -4,6 +4,7 @@ import be.kdg.gobackend.api.dto.registeration.FullGameDto;
 import be.kdg.gobackend.config.rabbitMQ.RabbitMQProperties;
 import be.kdg.gobackend.infrastructure.gamestate.rabbitMQ.messages.RegisterGameMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -21,6 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @Slf4j
 @Component
 @Profile("!test")
+@RequiredArgsConstructor
 public class RabbitStartupPublisher {
 
     private final RabbitTemplate rabbitTemplate;
@@ -29,13 +31,6 @@ public class RabbitStartupPublisher {
     private final TaskScheduler taskScheduler;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-
-    public RabbitStartupPublisher(RabbitTemplate rabbitTemplate, RabbitMQProperties properties, UrlChecker urlChecker, TaskScheduler taskScheduler) {
-        this.rabbitTemplate = rabbitTemplate;
-        this.properties = properties;
-        this.urlChecker = urlChecker;
-        this.taskScheduler = taskScheduler;
-    }
 
     @EventListener(ApplicationReadyEvent.class)
     public void publishStartupEvent() {
