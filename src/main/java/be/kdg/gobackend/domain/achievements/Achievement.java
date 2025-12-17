@@ -11,7 +11,7 @@ public enum Achievement {
     LETS_GO(
             UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
             "Let's Go",
-            "Open go for the first time"
+            "Start a go game for the first time"
     ),
     GO_HOME(
             UUID.fromString("9b2c7e4a-3f1d-4a82-9c3b-2b8a6d4f1e57"),

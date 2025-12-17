@@ -29,7 +29,6 @@ public class GameStateService {
         log.info("getting the state with id {}", stateId);
         final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
         gameState.verifyPlayer(playerId);
-        achievementPublisher.unlock(playerId.id(), Achievement.LETS_GO);
         return gameState;
     }
 
@@ -37,6 +36,7 @@ public class GameStateService {
         log.info("player {} starting a game of size {}", playerId, size);
         final var gameState = new GameState(size, playerId);
         gameStateRepository.save(gameState);
+        achievementPublisher.unlock(playerId.id(), Achievement.LETS_GO);
         if (size == 19) achievementPublisher.unlock(playerId.id(), Achievement.GO_BIG_OR_GO_HOME);
         return gameState;
     }
