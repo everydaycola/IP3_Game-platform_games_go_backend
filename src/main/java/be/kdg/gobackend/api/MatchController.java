@@ -6,6 +6,7 @@ import be.kdg.gobackend.api.dto.NewStoneDto;
 import be.kdg.gobackend.application.GameStateService;
 import be.kdg.gobackend.domain.game.GameStateId;
 import be.kdg.gobackend.domain.player.PlayerId;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,13 +18,10 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/go/api/matches")
 @Slf4j
+@RequiredArgsConstructor
 public class MatchController {
 
     final GameStateService gameStateService;
-
-    public MatchController(GameStateService gameStateService) {
-        this.gameStateService = gameStateService;
-    }
 
     @PostMapping()
     public ResponseEntity<GameStateDto> startGame(@AuthenticationPrincipal Jwt token, @RequestBody NewMatchDto newMatchDto){

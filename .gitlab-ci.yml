@@ -1,5 +1,10 @@
 image: gradle:8.10-jdk21
 
+variables:
+  DOCKER_HOST: "tcp://docker:2375"
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_DRIVER: overlay2
+
 stages:
   - build
   - test
@@ -43,6 +48,9 @@ test:
   stage: test
   script:
     - gradle test --no-daemon
+  services:
+    - name: docker:24.0.5-dind
+      command: [ "--tls=false" ]
   dependencies:
     - build
   artifacts:
