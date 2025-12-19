@@ -6,6 +6,7 @@ import be.kdg.gobackend.infrastructure.gamestate.rabbitMQ.messages.RegisterGameM
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Profile;
@@ -34,15 +35,15 @@ public class RabbitStartupPublisher {
 
     @EventListener(ApplicationReadyEvent.class)
     public void publishStartupEvent() {
-        FullGameDto updatedDto = loadAndBuildDto();
+        final var updatedDto = loadAndBuildDto();
         if (updatedDto == null) return;
 
-        AtomicReference<ScheduledFuture<?>> futureRef = new AtomicReference<>();
+        final var futureRef = new AtomicReference<ScheduledFuture<?>>();
 
-        ScheduledFuture<?> future = taskScheduler.scheduleWithFixedDelay(() -> {
+        final var future = taskScheduler.scheduleWithFixedDelay(() -> {
             try {
-                if (!urlChecker.isUrlReachable(updatedDto.url())) {
-                    log.warn("Game not registered yet; url not reachable: {}", updatedDto.url());
+                if (!urlChecker.isUrlReachable(properties.getInternalGameUrl())) {
+                    log.warn("Game not registered yet; url not reachable internally: {}, external is {}", properties.getInternalGameUrl(), properties.getExternalGameUrl());
                     return;
                 }
 
@@ -53,9 +54,10 @@ public class RabbitStartupPublisher {
                 );
                 log.info("Startup game message sent to RabbitMQ: {}", updatedDto);
 
-                ScheduledFuture<?> f = futureRef.get();
+                final var f = futureRef.get();
                 if (f != null) f.cancel(false);
-            } catch (Exception e) {
+
+            } catch (AmqpException e) {
                 // Don’t kill the scheduler thread; just log and let it retry on next tick.
                 log.error("Error while trying to register startup game (will retry)", e);
             }
@@ -71,7 +73,7 @@ public class RabbitStartupPublisher {
                 return null;
             }
 
-            FullGameDto goDto = objectMapper.readValue(is, FullGameDto.class);
+            final var goDto = objectMapper.readValue(is, FullGameDto.class);
             return new FullGameDto(
                     goDto.id(),
                     goDto.name(),
@@ -80,7 +82,7 @@ public class RabbitStartupPublisher {
                     goDto.image(),
                     goDto.icon(),
                     goDto.genre(),
-                    properties.getGameUrl(),
+                    properties.getExternalGameUrl(),
                     goDto.achievements()
             );
         } catch (IOException e) {
