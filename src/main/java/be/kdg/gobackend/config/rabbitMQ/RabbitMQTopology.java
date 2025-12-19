@@ -15,4 +15,15 @@ public class RabbitMQTopology {
     TopicExchange xivExchange() {
         return new TopicExchange(properties.getExchangeName());
     }
+
+    //REGISTER GAME
+    @Bean
+    Queue registerGameQueue(){
+        return QueueBuilder.nonDurable(properties.getRegisterGameQueue()).build();
+    }
+
+    @Bean
+    Binding registerGameBinging(){
+        return BindingBuilder.bind(registerGameQueue()).to(xivExchange()).with(properties.getRegisterGameBinding());
+    }
 }
