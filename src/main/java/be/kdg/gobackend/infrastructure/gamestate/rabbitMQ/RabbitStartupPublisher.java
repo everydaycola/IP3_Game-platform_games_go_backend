@@ -1,9 +1,11 @@
 package be.kdg.gobackend.infrastructure.gamestate.rabbitMQ;
 
+import be.kdg.gobackend.api.dto.registeration.AchievementDto;
+import be.kdg.gobackend.config.RegistrationConfig;
+import be.kdg.gobackend.domain.achievements.Achievement;
 import be.kdg.gobackend.api.dto.registeration.FullGameDto;
 import be.kdg.gobackend.config.rabbitMQ.RabbitMQProperties;
 import be.kdg.gobackend.infrastructure.gamestate.rabbitMQ.messages.RegisterGameMessage;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpException;
@@ -14,9 +16,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -27,29 +28,43 @@ import java.util.concurrent.atomic.AtomicReference;
 public class RabbitStartupPublisher {
 
     private final RabbitTemplate rabbitTemplate;
-    private final RabbitMQProperties properties;
+    private final RabbitMQProperties rabbitMQProperties;
+    private final RegistrationConfig registrationConfig;
     private final UrlChecker urlChecker;
     private final TaskScheduler taskScheduler;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     @EventListener(ApplicationReadyEvent.class)
     public void publishStartupEvent() {
-        final var updatedDto = loadAndBuildDto();
-        if (updatedDto == null) return;
+
+        final var updatedDto = new FullGameDto(
+                registrationConfig.getId(),
+                registrationConfig.getName(),
+                registrationConfig.getDescription(),
+                registrationConfig.getPrice(),
+                registrationConfig.getImage(),
+                registrationConfig.getIcon(),
+                registrationConfig.getGenre(),
+                registrationConfig.getExternalGameUrl(),
+                Arrays.stream(Achievement.values())
+                        .map(a -> new AchievementDto(
+                                a.getId(),
+                                a.getTitle(),
+                                a.getDescription()))
+                        .toList()
+        );
 
         final var futureRef = new AtomicReference<ScheduledFuture<?>>();
 
         final var future = taskScheduler.scheduleWithFixedDelay(() -> {
             try {
-                if (!urlChecker.isUrlReachable(properties.getInternalGameUrl())) {
-                    log.warn("Game not registered yet; url not reachable internally: {}, external is {}", properties.getInternalGameUrl(), properties.getExternalGameUrl());
+                if (!urlChecker.isUrlReachable(registrationConfig.getInternalGameUrl())) {
+                    log.warn("Game not registered yet; url not reachable internally: {}, external is {}", registrationConfig.getInternalGameUrl(), registrationConfig.getExternalGameUrl());
                     return;
                 }
 
                 rabbitTemplate.convertAndSend(
-                        properties.getExchangeName(),
-                        properties.getRegisterGameBinding(),
+                        rabbitMQProperties.getExchangeName(),
+                        rabbitMQProperties.getRegisterGameBinding(),
                         new RegisterGameMessage(updatedDto)
                 );
                 log.info("Startup game message sent to RabbitMQ: {}", updatedDto);
@@ -64,30 +79,5 @@ public class RabbitStartupPublisher {
         }, Duration.ofSeconds(5));
 
         futureRef.set(future);
-    }
-
-    private FullGameDto loadAndBuildDto() {
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream("go.json")) {
-            if (is == null) {
-                log.error("go.json not found in resources");
-                return null;
-            }
-
-            final var goDto = objectMapper.readValue(is, FullGameDto.class);
-            return new FullGameDto(
-                    goDto.id(),
-                    goDto.name(),
-                    goDto.description(),
-                    goDto.price(),
-                    goDto.image(),
-                    goDto.icon(),
-                    goDto.genre(),
-                    properties.getExternalGameUrl(),
-                    goDto.achievements()
-            );
-        } catch (IOException e) {
-            log.error("Failed to read go.json", e);
-            return null;
-        }
     }
 }
