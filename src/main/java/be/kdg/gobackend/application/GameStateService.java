@@ -43,6 +43,17 @@ public class GameStateService {
         return gameState;
     }
 
+    public GameState startGame(PlayerId player1Id, PlayerId player2Id, int size) {
+        log.info("player {} started a games vs player {} of size {}", player1Id.id(), player2Id.id(), size);
+        final var gameState = new GameState(size, player1Id, player2Id, false);
+        gameStateRepository.save(gameState);
+        achievementPublisher.unlock(player1Id.id(), Achievement.LETS_GO);
+        achievementPublisher.unlock(player2Id.id(), Achievement.LETS_GO);
+        if(size == 19) achievementPublisher.unlock(player1Id.id(), Achievement.GO_BIG_OR_GO_HOME);
+        if(size == 19) achievementPublisher.unlock(player2Id.id(), Achievement.GO_BIG_OR_GO_HOME);
+        return gameState;
+    }
+
     public GameState placeStone(GameStateId stateId, int x, int y, PlayerId playerId) {
         log.info("player in match {} placing a stone at {}, {}", stateId, x, y);
         final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
@@ -92,4 +103,5 @@ public class GameStateService {
         return gameStateRepository.getPlayingGameForPlayerAndSize(playerId, size)
                 .orElseThrow(() -> new NotFoundException("No game found for player " + playerId.id()));
     }
+
 }
