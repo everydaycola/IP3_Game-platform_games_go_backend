@@ -26,7 +26,6 @@ public class MatchController {
 
     @PostMapping
     public ResponseEntity<GameStateDto> startGame(@AuthenticationPrincipal Jwt token, @RequestBody NewMatchDto newAiMatchDto){
-        //TODO implement logic to start a non-ai game.
         log.info("Starting a new game");
         final var player1Id = PlayerId.fromToken(token);
         final var player2Id = new PlayerId(newAiMatchDto.player2Id());
