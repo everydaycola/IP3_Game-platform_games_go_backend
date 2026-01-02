@@ -21,7 +21,7 @@ public record GameStateDto(
                 gameState.getSize(),
                 gameState.getWinner().toString(),
                 gameState.getScore(),
-                gameState.isAtTurn(),
+                gameState.isPlayer1AtTurn(),
                 gameState.isLastTurnPassed()
         );
     }

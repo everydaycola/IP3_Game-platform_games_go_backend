@@ -124,7 +124,7 @@ class MatchIntergrationTests {
         @Test
         void start_new_match_creates_a_match_and_returns_it() throws Exception {
             // act
-            mockMvc.perform(post("/go/api/matches")
+            mockMvc.perform(post("/go/api/matches/ai")
                             // arrange
                             .contentType("application/json")
                             .content("{\"size\": 9}")
@@ -333,7 +333,7 @@ class MatchIntergrationTests {
         @Test
         void start_new_match_with_value_under_5_should_give_400() throws Exception {
             // act
-            mockMvc.perform(post("/go/api/matches")
+            mockMvc.perform(post("/go/api/matches/ai")
                             // arrange
                             .contentType("application/json")
                             .content("{\"size\": 4}")
@@ -353,7 +353,7 @@ class MatchIntergrationTests {
         @Test
         void start_new_match_with_value_above_19_should_give_400() throws Exception {
             // act
-            mockMvc.perform(post("/go/api/matches")
+            mockMvc.perform(post("/go/api/matches/ai")
                             // arrange
                             .contentType("application/json")
                             .content("{\"size\": 20}")
@@ -485,7 +485,7 @@ class MatchIntergrationTests {
         @Test
         void start_new_match_unauthorized_fails() throws Exception {
             // act
-            mockMvc.perform(post("/go/api/matches")
+            mockMvc.perform(post("/go/api/matches/ai")
                             // arrange
                             .contentType("application/json")
                             .content("{\"size\": 9}"))

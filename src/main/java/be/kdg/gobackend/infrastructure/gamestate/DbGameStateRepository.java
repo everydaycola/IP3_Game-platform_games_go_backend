@@ -34,6 +34,6 @@ public class DbGameStateRepository implements GameStateRepository {
     @Override
     public Optional<GameState> getPlayingGameForPlayerAndSize(PlayerId playerId, int size) {
         log.info("Getting game for player {}  and size {} from database", playerId.id(), size);
-        return gameStateRepository.findFirstByPlayerAndWinnerAndBoardSize(playerId.id(), Stone.EMPTY, size).map(JpaGameStateEntity::toDomain);
+        return gameStateRepository.findFirstByPlayer1AndWinnerAndBoardSize(playerId.id(), Stone.EMPTY, size).map(JpaGameStateEntity::toDomain);
     }
 }

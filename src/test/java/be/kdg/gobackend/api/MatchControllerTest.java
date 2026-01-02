@@ -54,7 +54,9 @@ class MatchControllerTest {
         void aiMakesAMove() {
             // Arrange
             final var playerUUID = UUID.randomUUID();
-            final var match = new GameState(9, new PlayerId(playerUUID));
+            final var playerId = new PlayerId(playerUUID);
+            final var aiPlayerId = new PlayerId(UUID.randomUUID());
+            final var match = new GameState(9, playerId,aiPlayerId, true);
             match.placeStone(0,8, Stone.BLACK);
 
             when(jpaGameStateRepository.findById(match.getId().id()))
@@ -92,7 +94,9 @@ class MatchControllerTest {
         void aiPasses() {
             // Arrange
             final var playerUUID = UUID.randomUUID();
-            final var match = new GameState(9, new PlayerId(playerUUID));
+            final var playerId = new PlayerId(playerUUID);
+            final var aiPlayerId = new PlayerId(playerUUID);
+            final var match = new GameState(9, playerId,aiPlayerId, true);
             match.passTurn(Stone.BLACK);
 
             when(jpaGameStateRepository.findById(match.getId().id()))
@@ -132,7 +136,8 @@ class MatchControllerTest {
             // Arrange
             UUID playerUUID = UUID.randomUUID();
             final var playerId = new PlayerId(playerUUID);
-            final var match = new GameState(9, playerId);
+            final var aiPlayerId = new PlayerId(playerUUID);
+            final var match = new GameState(9, playerId,aiPlayerId, true);
             match.placeStone(0,8, Stone.BLACK);
             final var jpaEntity = JpaGameStateEntity.fromDomain(match);
 

@@ -23,11 +23,20 @@ public class MatchController {
 
     final GameStateService gameStateService;
 
-    @PostMapping()
+    @PostMapping("/")
     public ResponseEntity<GameStateDto> startGame(@AuthenticationPrincipal Jwt token, @RequestBody NewMatchDto newMatchDto){
+        //TODO implement logic to start a non-ai game.
         log.info("Starting a new game");
         final var playerId = PlayerId.fromToken(token);
-        final var state = gameStateService.start(playerId, newMatchDto.size());
+        final var state = gameStateService.startAiGame(playerId, newMatchDto.size());
+        return ResponseEntity.ok(GameStateDto.from(state));
+    }
+
+    @PostMapping("/ai")
+    public ResponseEntity<GameStateDto> startAiGame(@AuthenticationPrincipal Jwt token, @RequestBody NewMatchDto newMatchDto){
+        log.info("Starting a new game vs AI");
+        final var playerId = PlayerId.fromToken(token);
+        final var state = gameStateService.startAiGame(playerId, newMatchDto.size());
         return ResponseEntity.ok(GameStateDto.from(state));
     }
 

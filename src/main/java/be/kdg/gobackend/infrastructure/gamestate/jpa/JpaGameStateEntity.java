@@ -25,16 +25,22 @@ public class JpaGameStateEntity {
     private Stone[] board;
 
     @Column
+    private boolean isAiGame;
+
+    @Column
     private int boardSize;
 
     @Column
     private double score;
 
     @Column
-    private UUID player;
+    private UUID player1;
 
     @Column
-    private boolean atTurn;
+    private UUID player2;
+
+    @Column
+    private boolean player1AtTurn;
 
     @Column
     private boolean isLastTurnPassed;
@@ -46,10 +52,12 @@ public class JpaGameStateEntity {
         return new JpaGameStateEntity(
                 gameState.getId().id(),
                 gameState.getBoard().getStones(),
+                gameState.isAiGame(),
                 gameState.getBoard().getSize(),
                 gameState.getScore(),
-                gameState.getPlayer().id(),
-                gameState.isAtTurn(),
+                gameState.getPlayer1().id(),
+                gameState.getPlayer2().id(),
+                gameState.isPlayer1AtTurn(),
                 gameState.isLastTurnPassed(),
                 gameState.getWinner()
         );
@@ -59,8 +67,10 @@ public class JpaGameStateEntity {
         return new GameState(
                 new GameStateId(this.id),
                 new Board(this.boardSize, this.board),
-                new PlayerId(this.player),
-                this.atTurn,
+                this.isAiGame,
+                new PlayerId(this.player1),
+                new PlayerId(this.player2),
+                this.player1AtTurn,
                 this.isLastTurnPassed,
                 this.score,
                 this.winner

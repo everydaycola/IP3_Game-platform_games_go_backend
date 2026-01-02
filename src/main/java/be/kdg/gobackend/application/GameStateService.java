@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @Transactional
 @Slf4j
@@ -32,9 +34,9 @@ public class GameStateService {
         return gameState;
     }
 
-    public GameState start(PlayerId playerId, int size) {
+    public GameState startAiGame(PlayerId playerId, int size) {
         log.info("player {} starting a game of size {}", playerId, size);
-        final var gameState = new GameState(size, playerId);
+        final var gameState = new GameState(size, playerId,new PlayerId(UUID.randomUUID()), true);
         gameStateRepository.save(gameState);
         achievementPublisher.unlock(playerId.id(), Achievement.LETS_GO);
         if (size == 19) achievementPublisher.unlock(playerId.id(), Achievement.GO_BIG_OR_GO_HOME);
