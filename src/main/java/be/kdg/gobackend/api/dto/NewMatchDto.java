@@ -1,3 +1,5 @@
 package be.kdg.gobackend.api.dto;
 
-public record NewMatchDto(int size) { }
+import java.util.UUID;
+
+public record NewMatchDto(int size, UUID player1Id, UUID player2Id) { }
