@@ -83,7 +83,8 @@ public class RabbitStartupPublisher {
                     goDto.icon(),
                     goDto.genre(),
                     properties.getExternalGameUrl(),
-                    goDto.achievements()
+                    goDto.achievements(),
+                    goDto.configurableSettings()
             );
         } catch (IOException e) {
             log.error("Failed to read go.json", e);

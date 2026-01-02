@@ -32,5 +32,8 @@
       "name": "Go big or go home",
       "description": "Start a game on 19x19 board"
     }
-  ]
+  ],
+  "configurableSettings": {
+    "boardSize": [9,13,19]
+  }
 }

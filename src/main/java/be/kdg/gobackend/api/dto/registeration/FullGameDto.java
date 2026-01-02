@@ -2,6 +2,7 @@ package be.kdg.gobackend.api.dto.registeration;
 
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public record FullGameDto(
@@ -13,7 +14,8 @@ public record FullGameDto(
         String icon,
         String genre,
         String url,
-        List<AchievementDto> achievements
+        List<AchievementDto> achievements,
+        Map<String, Object> configurableSettings
 ) {
 
 
