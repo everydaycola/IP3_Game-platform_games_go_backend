@@ -97,7 +97,7 @@ class MatchControllerTest {
             final var playerId = new PlayerId(playerUUID);
             final var aiPlayerId = new PlayerId(playerUUID);
             final var match = new GameState(9, playerId,aiPlayerId, true);
-            match.passTurn(Stone.BLACK);
+            match.passTurn();
 
             when(jpaGameStateRepository.findById(match.getId().id()))
                     .thenReturn(Optional.of(JpaGameStateEntity.fromDomain(match)));

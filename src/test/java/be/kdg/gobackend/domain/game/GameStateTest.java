@@ -71,7 +71,7 @@ class GameStateTest {
             final var gameState = new GameState(new GameStateId(), mockBoard,true, playerId,aiPlayerId, true, false, 0.0, null);
 
             // Act
-            gameState.passTurn(Stone.BLACK);
+            gameState.passTurn();
 
             // Assert
             assertThat(gameState.isPlayer1AtTurn()).isFalse();
@@ -90,7 +90,7 @@ class GameStateTest {
             when(mockBoard.calculateScore()).thenReturn(10.0);
 
             // Act
-            gameState.passTurn(Stone.WHITE);
+            gameState.passTurn();
 
             // Assert
             assertThat(gameState.getScore()).isEqualTo(3.5);
@@ -109,7 +109,7 @@ class GameStateTest {
             when(mockBoard.calculateScore()).thenReturn(6.0);
 
             // Act
-            gameState.passTurn(Stone.WHITE);
+            gameState.passTurn();
 
             // Assert
             assertThat(gameState.getScore()).isEqualTo(-0.5);
@@ -213,7 +213,7 @@ class GameStateTest {
             final var gameState = new GameState(new GameStateId(), mockBoard,true, playerId,aiPlayerId, true, false, 0.0, null);
 
             // Act & Assert
-            assertThatThrownBy(() -> gameState.passTurn(Stone.WHITE))
+            assertThatThrownBy(() -> gameState.passTurn())
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessage("It is not player's turn");
         }
