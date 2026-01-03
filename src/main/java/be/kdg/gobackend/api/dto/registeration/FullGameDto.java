@@ -19,7 +19,4 @@ public record FullGameDto(
         String url,
         List<AchievementDto> achievements,
         Map<String, Object> configurableSettings
-) {
-
-
-}
+) {}
