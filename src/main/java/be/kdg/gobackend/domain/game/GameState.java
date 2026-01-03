@@ -7,7 +7,10 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 // note in general, the game only allows user vs AI at the moment.
-@Getter @Slf4j @AllArgsConstructor public class GameState {
+@Getter
+@Slf4j
+@AllArgsConstructor
+public class GameState {
     private static final double KOMI = 6.5;
     private final GameStateId id;
     private final Board board;
@@ -19,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
     private double score;
     private Stone winner;
 
-    public GameState(int size, PlayerId player1,PlayerId player2, boolean isAiGame) {
+    public GameState(int size, PlayerId player1, PlayerId player2, boolean isAiGame) {
         log.info("Creating a new game with player {} of size {}", player1, size);
         this.player1 = player1;
         this.player2 = player2;
@@ -45,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
         this.isLastTurnPassed = false;
     }
 
-    public void switchPlayerAtTurn(){
+    public void switchPlayerAtTurn() {
         this.player1AtTurn = !this.isPlayer1AtTurn();
     }
 
@@ -63,16 +66,24 @@ import lombok.extern.slf4j.Slf4j;
         this.score = this.board.calculateScore() - KOMI;
         this.winner = this.score > 0 ? Stone.BLACK : Stone.WHITE;
         log.info("""
-                             The game has ended.
-                             Final score: {}
-                             Winner: {}
-                             """, this.score, this.winner);
+                The game has ended.
+                Final score: {}
+                Winner: {}
+                """, this.score, this.winner);
 
     }
 
-    public void verifyPlayer(PlayerId currentPlayerId) {
-        if(!player1.equals(currentPlayerId) && !player2.equals(currentPlayerId)) throw new NotFoundException("Game was not found.");
-        if(this.player1AtTurn && !player1.equals(currentPlayerId)) throw new IllegalStateException("Player is not at turn.");
-        if(!this.player1AtTurn && !player2.equals(currentPlayerId)) throw new IllegalStateException("Player is not at turn.");
+    public void verifyPlayer(PlayerId currentPlayerId, Boolean isAiGame) {
+        if (isAiGame) {
+            if (!player1.equals(currentPlayerId)) throw new NotFoundException("Game was not found");
+        } else {
+
+            if (!player1.equals(currentPlayerId) && !player2.equals(currentPlayerId))
+                throw new NotFoundException("Game was not found.");
+            if (this.player1AtTurn && !player1.equals(currentPlayerId))
+                throw new IllegalStateException("Player is not at turn.");
+            if (!this.player1AtTurn && !player2.equals(currentPlayerId))
+                throw new IllegalStateException("Player is not at turn.");
+        }
     }
 }

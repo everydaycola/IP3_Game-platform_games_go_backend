@@ -126,7 +126,7 @@ class GameStateTest {
             final var gameState = new GameState(9, playerId,aiPlayerId,true);
 
             // Act & Assert (Should not throw error)
-            gameState.verifyPlayer(new PlayerId(uuid));
+            gameState.verifyPlayer(new PlayerId(uuid), gameState.isAiGame());
         }
 
         @Test
@@ -228,7 +228,7 @@ class GameStateTest {
             final var otherPlayer = new PlayerId(UUID.randomUUID());
 
             // Act & Assert
-            assertThatThrownBy(() -> gameState.verifyPlayer(otherPlayer))
+            assertThatThrownBy(() -> gameState.verifyPlayer(otherPlayer, gameState.isAiGame()))
                     .isInstanceOf(NotFoundException.class)
                     .hasMessage("Game was not found");
         }

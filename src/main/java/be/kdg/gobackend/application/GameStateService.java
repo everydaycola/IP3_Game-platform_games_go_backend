@@ -30,7 +30,7 @@ public class GameStateService {
     public GameState getState(GameStateId stateId, PlayerId playerId) {
         log.info("getting the state with id {}", stateId);
         final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
-        gameState.verifyPlayer(playerId);
+        gameState.verifyPlayer(playerId, gameState.isAiGame());
         return gameState;
     }
 
@@ -73,7 +73,7 @@ public class GameStateService {
             case WHITE:
                 achievementPublisher.unlock(playerId.id(), Achievement.GO_HOME);
                 break;
-            case EMPTY: // do nothing
+            case EMPTY:
         }
         return gameState;
     }
@@ -83,13 +83,14 @@ public class GameStateService {
         final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
         final var aiResponse = aiCatalog.askForMove(AiRequestBodyDto.from(gameState))
                                         .orElseThrow(() -> new IllegalStateException("Ai could not make a move"));
-        gameState.verifyPlayer(playerId);
+        gameState.verifyPlayer(playerId, gameState.isAiGame());
         log.info("ai chose row {}, col {}, move {}", aiResponse.row(), aiResponse.col(), aiResponse.best_move());
         if (aiResponse.col() == -1 && aiResponse.row() == -1) {
             gameState.passTurn();
         } else {
-            gameState.placeStone(aiResponse.row(), aiResponse.col(), Stone.WHITE);
+            gameState.placeStone(aiResponse.row(), aiResponse.col(), Stone.BLACK);
         }
+        gameState.switchPlayerAtTurn();
         gameStateRepository.save(gameState);
         return gameState;
     }
@@ -97,7 +98,7 @@ public class GameStateService {
     public GameState passTurn(GameStateId stateId, PlayerId playerId) {
         log.info("passing turn to player in match {}", stateId);
         final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
-        gameState.verifyPlayer(playerId);
+        gameState.verifyPlayer(playerId, gameState.isAiGame());
         gameState.passTurn();
         gameStateRepository.save(gameState);
         achievementPublisher.unlock(playerId.id(), Achievement.GO_AHEAD);
