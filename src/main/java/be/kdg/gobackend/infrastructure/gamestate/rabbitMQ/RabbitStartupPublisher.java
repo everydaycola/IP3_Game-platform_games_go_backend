@@ -58,6 +58,7 @@ public class RabbitStartupPublisher {
                 if (f != null) f.cancel(false);
 
             } catch (AmqpException e) {
+                // Don’t kill the scheduler thread; just log and let it retry on next tick.
                 log.error("Error while trying to register startup game (will retry)", e);
             }
         }, Duration.ofSeconds(5));
@@ -76,17 +77,13 @@ public class RabbitStartupPublisher {
             return new FullGameDto(
                     goDto.id(),
                     goDto.name(),
-                    goDto.maxPlayerCount(),
-                    goDto.aiStartGameEndpoint(),
-                    goDto.startGameEndpoint(),
                     goDto.description(),
                     goDto.price(),
                     goDto.image(),
                     goDto.icon(),
                     goDto.genre(),
                     properties.getExternalGameUrl(),
-                    goDto.achievements(),
-                    goDto.configurableSettings()
+                    goDto.achievements()
             );
         } catch (IOException e) {
             log.error("Failed to read go.json", e);
