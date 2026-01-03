@@ -29,7 +29,7 @@ public class MatchController {
         log.info("Starting a new game");
         final var player1Id = PlayerId.fromToken(token);
         final var player2Id = new PlayerId(newAiMatchDto.player2Id());
-        final var state = gameStateService.startGame(player1Id,player2Id,newAiMatchDto.size());
+        final var state = gameStateService.startGame(player1Id,player2Id,newAiMatchDto.settings().boardSize());
         return ResponseEntity.ok(GameStateDto.from(state));
     }
 
@@ -50,11 +50,11 @@ public class MatchController {
         return ResponseEntity.ok(GameStateDto.from(state));
     }
 
-    @GetMapping("/playing/{size}")
-    public ResponseEntity<GameStateDto> getPlayingGame(@AuthenticationPrincipal Jwt token, @PathVariable int size){
+    @GetMapping("/playing")
+    public ResponseEntity<GameStateDto> getPlayingGame(@AuthenticationPrincipal Jwt token){
         final var playerId = PlayerId.fromToken(token);
         log.info("Getting playing game for user {}", playerId.id());
-        final var state = gameStateService.getPlayingStateForPlayerAndState(playerId, size);
+        final var state = gameStateService.getPlayingStateForPlayerAndState(playerId);
         return ResponseEntity.ok(GameStateDto.from(state));
     }
 

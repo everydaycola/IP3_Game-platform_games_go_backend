@@ -1,6 +1,9 @@
 {
   "id": "e3b0c442-98fc-4dcb-8b66-3a9c5f993bcd",
   "name": "Go",
+  "maxPlayerCount": 2,
+  "aiStartGameEndpoint": "http://localhost:8082/go/api/matches/ai",
+  "startGameEndpoint": "http://localhost:8082/go/api/matches",
   "description": "An ancient abstract strategy board game originating from East Asia.",
   "price": 29.99,
   "image": "https://media.istockphoto.com/id/1286732858/vector/go-game-icon-vector-trendy-flat-go-game-icon-from-sport-collection-isolated-on-white.jpg?s=612x612&w=0&k=20&c=8hO8ahHh2Gtub84Rpy7Vc_rx9OrwFjMEqdGLpdHbYoU=",

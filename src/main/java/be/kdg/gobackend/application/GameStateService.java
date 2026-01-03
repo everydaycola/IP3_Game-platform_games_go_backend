@@ -57,8 +57,14 @@ public class GameStateService {
     public GameState placeStone(GameStateId stateId, int x, int y, PlayerId playerId) {
         log.info("player in match {} placing a stone at {}, {}", stateId, x, y);
         final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
-        gameState.verifyPlayer(playerId);
-        gameState.placeStone(x, y, Stone.BLACK);
+        final Stone toPlaceStone;
+        if(gameState.isPlayer1AtTurn()){
+            toPlaceStone = Stone.WHITE;
+        }else{
+            toPlaceStone = Stone.BLACK;
+        }
+        gameState.placeStone(x, y, toPlaceStone);
+        gameState.switchPlayerAtTurn();
         gameStateRepository.save(gameState);
         switch (gameState.getWinner()) {
             case BLACK:
@@ -80,7 +86,7 @@ public class GameStateService {
         gameState.verifyPlayer(playerId);
         log.info("ai chose row {}, col {}, move {}", aiResponse.row(), aiResponse.col(), aiResponse.best_move());
         if (aiResponse.col() == -1 && aiResponse.row() == -1) {
-            gameState.passTurn(Stone.WHITE);
+            gameState.passTurn();
         } else {
             gameState.placeStone(aiResponse.row(), aiResponse.col(), Stone.WHITE);
         }
@@ -92,15 +98,15 @@ public class GameStateService {
         log.info("passing turn to player in match {}", stateId);
         final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
         gameState.verifyPlayer(playerId);
-        gameState.passTurn(Stone.BLACK);
+        gameState.passTurn();
         gameStateRepository.save(gameState);
         achievementPublisher.unlock(playerId.id(), Achievement.GO_AHEAD);
         return gameState;
     }
 
-    public GameState getPlayingStateForPlayerAndState(PlayerId playerId, int size) {
-        log.info("getting the state for player {} and size {}", playerId, size);
-        return gameStateRepository.getPlayingGameForPlayerAndSize(playerId, size)
+    public GameState getPlayingStateForPlayerAndState(PlayerId playerId) {
+        log.info("getting the state for player {}", playerId);
+        return gameStateRepository.getPlayingGameForPlayer(playerId)
                 .orElseThrow(() -> new NotFoundException("No game found for player " + playerId.id()));
     }
 

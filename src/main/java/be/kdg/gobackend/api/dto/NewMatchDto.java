@@ -2,4 +2,5 @@ package be.kdg.gobackend.api.dto;
 
 import java.util.UUID;
 
-public record NewMatchDto(int size, UUID player1Id, UUID player2Id) { }
+//boardSize here must match the go.json's since its send in from UI.
+public record NewMatchDto(UUID player1Id, UUID player2Id, GameSettingsDto settings) { }

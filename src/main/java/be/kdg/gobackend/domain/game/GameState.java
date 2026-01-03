@@ -39,24 +39,25 @@ import lombok.extern.slf4j.Slf4j;
 
     public void placeStone(int x, int y, Stone stone) {
         log.info("placing a stone at {}, {}", x, y);
-        final var playerTurn = stone.equals(Stone.BLACK);
-        if (player1AtTurn != playerTurn) throw new IllegalStateException("It is not player's turn");
+        //final var playerTurn = stone.equals(Stone.BLACK);
+        //if (player1AtTurn != playerTurn) throw new IllegalStateException("It is not player's turn");
         board.placeStone(x, y, stone);
         this.isLastTurnPassed = false;
-        this.player1AtTurn = !playerTurn;
+    }
+
+    public void switchPlayerAtTurn(){
+        this.player1AtTurn = !this.isPlayer1AtTurn();
     }
 
     public int getSize() {
         return this.board.getSize();
     }
 
-    public void passTurn(Stone stone) {
-        final var playerTurn = stone.equals(Stone.BLACK);
-        if (player1AtTurn != playerTurn) throw new IllegalStateException("It is not player's turn");
+    public void passTurn() {
         log.info("Passing turn");
         if (!this.isLastTurnPassed) {
             this.isLastTurnPassed = true;
-            this.player1AtTurn = !this.player1AtTurn;
+            switchPlayerAtTurn();
             return;
         }
         this.score = this.board.calculateScore() - KOMI;
@@ -69,7 +70,9 @@ import lombok.extern.slf4j.Slf4j;
 
     }
 
-    public void verifyPlayer(PlayerId playerId) {
-        if (!player1.equals(playerId)) throw new NotFoundException("Game was not found");
+    public void verifyPlayer(PlayerId currentPlayerId) {
+        if(!player1.equals(currentPlayerId) && !player2.equals(currentPlayerId)) throw new NotFoundException("Game was not found.");
+        if(this.player1AtTurn && !player1.equals(currentPlayerId)) throw new IllegalStateException("Player is not at turn.");
+        if(!this.player1AtTurn && !player2.equals(currentPlayerId)) throw new IllegalStateException("Player is not at turn.");
     }
 }

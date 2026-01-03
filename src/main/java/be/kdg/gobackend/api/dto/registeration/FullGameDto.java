@@ -8,6 +8,9 @@ import java.util.UUID;
 public record FullGameDto(
         UUID id,
         String name,
+        int maxPlayerCount,
+        String aiStartGameEndpoint,
+        String startGameEndpoint,
         String description,
         double price,
         String image,

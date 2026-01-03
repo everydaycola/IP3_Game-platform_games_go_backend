@@ -10,9 +10,11 @@ public record GameStateDto(
         int size,
         String winner,
         double score,
-        boolean atTurn,
-        boolean isLastTurnPassed
-
+        UUID player1Id,
+        UUID player2Id,
+        boolean isPlayer1AtTurn,
+        boolean isLastTurnPassed,
+        boolean isAiGame
 ) {
     public static GameStateDto from(GameState gameState) {
         return new GameStateDto(
@@ -21,8 +23,11 @@ public record GameStateDto(
                 gameState.getSize(),
                 gameState.getWinner().toString(),
                 gameState.getScore(),
+                gameState.getPlayer1().id(),
+                gameState.getPlayer2().id(),
                 gameState.isPlayer1AtTurn(),
-                gameState.isLastTurnPassed()
+                gameState.isLastTurnPassed(),
+                gameState.isAiGame()
         );
     }
 }
