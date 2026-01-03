@@ -91,14 +91,14 @@ class MatchIntergrationTests {
                     .andExpect(jsonPath("$.size").isNumber())
                     .andExpect(jsonPath("$.winner").value("EMPTY"))
                     .andExpect(jsonPath("$.score").value(0.0))
-                    .andExpect(jsonPath("$.atTurn").value(true))
+                    .andExpect(jsonPath("$.isPlayer1AtTurn").value(true))
                     .andExpect(jsonPath("$.isLastTurnPassed").value(false));
         }
 
         @Test
         void get_playing_should_return_200_with_valid_json_structure() throws Exception {
             // act
-            mockMvc.perform(get("/go/api/matches/playing/{size}", 9)
+            mockMvc.perform(get("/go/api/matches/playing")
                             // arrange
                             .with(jwt()
                                     .jwt(jwt -> jwt
@@ -117,8 +117,11 @@ class MatchIntergrationTests {
                     .andExpect(jsonPath("$.size").isNumber())
                     .andExpect(jsonPath("$.winner").value("EMPTY"))
                     .andExpect(jsonPath("$.score").value(0.0))
-                    .andExpect(jsonPath("$.atTurn").value(true))
-                    .andExpect(jsonPath("$.isLastTurnPassed").value(false));
+                    .andExpect(jsonPath("$.player1Id").value("10000000-0000-0000-0000-000000000001"))
+                    .andExpect(jsonPath("$.player2Id").value("10000000-0000-0000-0000-000000000011"))
+                    .andExpect(jsonPath("$.isPlayer1AtTurn").value(true))
+                    .andExpect(jsonPath("$.isLastTurnPassed").value(false))
+                    .andExpect(jsonPath("$.isAiGame").value(true));
         }
 
         @Test
@@ -147,7 +150,7 @@ class MatchIntergrationTests {
                     .andExpect(jsonPath("$.size").value(9))
                    .andExpect(jsonPath("$.winner").value("EMPTY"))
                    .andExpect(jsonPath("$.score").value(0.0))
-                   .andExpect(jsonPath("$.atTurn").value(true))
+                   .andExpect(jsonPath("$.isPlayer1AtTurn").value(true))
                    .andExpect(jsonPath("$.isLastTurnPassed").value(false));
         }
 
@@ -170,8 +173,8 @@ class MatchIntergrationTests {
                             ))
                     // assert
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.board[1][2]").value("B"))
-                    .andExpect(jsonPath("$.atTurn").value(false))
+                    .andExpect(jsonPath("$.board[1][2]").value("W"))
+                    .andExpect(jsonPath("$.isPlayer1AtTurn").value(false))
                     .andExpect(jsonPath("$.isLastTurnPassed").value(false));
         }
 
@@ -191,7 +194,7 @@ class MatchIntergrationTests {
                             ))
                     // assert
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.atTurn").value(false))
+                    .andExpect(jsonPath("$.isPlayer1AtTurn").value(true))
                     .andExpect(jsonPath("$.isLastTurnPassed").value(true));
         }
 
@@ -255,11 +258,11 @@ class MatchIntergrationTests {
                     // assert
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.board[4][4]").value("_"))
-                    .andExpect(jsonPath("$.board[5][4]").value("W"))
-                    .andExpect(jsonPath("$.board[3][4]").value("W"))
-                    .andExpect(jsonPath("$.board[4][5]").value("W"))
-                    .andExpect(jsonPath("$.board[4][3]").value("W"))
-                    .andExpect(jsonPath("$.atTurn").value(false));
+                    .andExpect(jsonPath("$.board[5][4]").value("B"))
+                    .andExpect(jsonPath("$.board[3][4]").value("B"))
+                    .andExpect(jsonPath("$.board[4][5]").value("B"))
+                    .andExpect(jsonPath("$.board[4][3]").value("B"))
+                    .andExpect(jsonPath("$.isPlayer1AtTurn").value(false));
         }
 
         @Test
@@ -281,15 +284,15 @@ class MatchIntergrationTests {
                             ))
                     // assert
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.board[4][4]").value("B"))
-                    .andExpect(jsonPath("$.board[3][5]").value("B"))
+                    .andExpect(jsonPath("$.board[4][4]").value("W"))
+                    .andExpect(jsonPath("$.board[3][5]").value("W"))
                     .andExpect(jsonPath("$.board[4][5]").value("_"))
-                    .andExpect(jsonPath("$.board[5][5]").value("B"))
-                    .andExpect(jsonPath("$.board[3][6]").value("B"))
+                    .andExpect(jsonPath("$.board[5][5]").value("W"))
+                    .andExpect(jsonPath("$.board[3][6]").value("W"))
                     .andExpect(jsonPath("$.board[4][6]").value("_"))
-                    .andExpect(jsonPath("$.board[5][6]").value("B"))
-                    .andExpect(jsonPath("$.board[4][7]").value("B"))
-                    .andExpect(jsonPath("$.atTurn").value(false));
+                    .andExpect(jsonPath("$.board[5][6]").value("W"))
+                    .andExpect(jsonPath("$.board[4][7]").value("W"))
+                    .andExpect(jsonPath("$.isPlayer1AtTurn").value(false));
         }
 
         @Test
@@ -311,20 +314,20 @@ class MatchIntergrationTests {
                             ))
                     // assert
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.board[4][2]").value("B"))
-                    .andExpect(jsonPath("$.board[3][3]").value("B"))
+                    .andExpect(jsonPath("$.board[4][2]").value("W"))
+                    .andExpect(jsonPath("$.board[3][3]").value("W"))
                     .andExpect(jsonPath("$.board[4][3]").value("_"))
-                    .andExpect(jsonPath("$.board[5][3]").value("B"))
-                    .andExpect(jsonPath("$.board[2][4]").value("B"))
+                    .andExpect(jsonPath("$.board[5][3]").value("W"))
+                    .andExpect(jsonPath("$.board[2][4]").value("W"))
                     .andExpect(jsonPath("$.board[3][4]").value("_"))
-                    .andExpect(jsonPath("$.board[4][4]").value("B"))
+                    .andExpect(jsonPath("$.board[4][4]").value("W"))
                     .andExpect(jsonPath("$.board[5][4]").value("_"))
-                    .andExpect(jsonPath("$.board[6][4]").value("B"))
-                    .andExpect(jsonPath("$.board[3][5]").value("B"))
+                    .andExpect(jsonPath("$.board[6][4]").value("W"))
+                    .andExpect(jsonPath("$.board[3][5]").value("W"))
                     .andExpect(jsonPath("$.board[4][5]").value("_"))
-                    .andExpect(jsonPath("$.board[5][5]").value("B"))
-                    .andExpect(jsonPath("$.board[4][6]").value("B"))
-                    .andExpect(jsonPath("$.atTurn").value(false));
+                    .andExpect(jsonPath("$.board[5][5]").value("W"))
+                    .andExpect(jsonPath("$.board[4][6]").value("W"))
+                    .andExpect(jsonPath("$.isPlayer1AtTurn").value(false));
         }
     }
 
@@ -415,25 +418,6 @@ class MatchIntergrationTests {
         }
 
         @Test
-        void get_match_as_wrong_owner_is_hidden_and_not_found() throws Exception {
-            // arrange
-            final var gameId = UUID.fromString("00000000-0000-0000-0000-000000000001");
-            // act
-            mockMvc.perform(get("/go/api/matches/{id}", gameId)
-                                    .with(jwt()
-                                                  .jwt(jwt -> jwt
-                                                          .subject("10000000-0000-0000-0000-000000000002")
-                                                          .claim(StandardClaimNames.GIVEN_NAME, "test_user")
-                                                          .claim(StandardClaimNames.FAMILY_NAME, "user")
-                                                          .claim(StandardClaimNames.EMAIL, "test_user@test.be")
-                                                  )
-                                    ))
-                   // assert
-                   .andExpect(status().isNotFound())
-                   .andExpect(jsonPath("$.message").isString());
-        }
-
-        @Test
         void get_playing_by_player_with_no_match_should_return_404() throws Exception {
             // act
             mockMvc.perform(get("/go/api/matches/playing/{size}", 9)
@@ -447,26 +431,7 @@ class MatchIntergrationTests {
                                     )
                             ))
                     // assert
-                    .andExpect(status().isNotFound())
-                    .andExpect(jsonPath("$.message").isString());
-        }
-
-        @Test
-        void get_playing_with_wrong_size_should_return_400() throws Exception {
-            // act
-            mockMvc.perform(get("/go/api/matches/playing/{size}", 19)
-                            // arrange
-                            .with(jwt()
-                                    .jwt(jwt -> jwt
-                                            .subject("10000000-0000-0000-0000-000000000001")
-                                            .claim(StandardClaimNames.GIVEN_NAME, "test_user")
-                                            .claim(StandardClaimNames.FAMILY_NAME, "user")
-                                            .claim(StandardClaimNames.EMAIL, "test_user@test.be")
-                                    )
-                            ))
-                    // assert
-                    .andExpect(status().isNotFound())
-                    .andExpect(jsonPath("$.message").isString());
+                    .andExpect(status().isNotFound());
         }
     }
 

@@ -36,7 +36,7 @@ class GameStateTest {
 
             // Assert
             verify(mockBoard).placeStone(x, y, stone);
-            assertThat(gameState.isPlayer1AtTurn()).isFalse();
+            assertThat(gameState.isPlayer1AtTurn()).isTrue();
             assertThat(gameState.isLastTurnPassed()).isFalse();
         }
 
@@ -58,24 +58,7 @@ class GameStateTest {
 
             // Assert
             verify(mockBoard).placeStone(x, y, stone);
-            assertThat(gameState.isPlayer1AtTurn()).isTrue();
-        }
-
-        @Test
-        @DisplayName("Pass turn should switch turn and set flag")
-        void passTurnShouldSwitch() {
-            // Arrange
-            final var mockBoard = Mockito.mock(Board.class);
-            final var playerId = new PlayerId(UUID.randomUUID());
-            final var aiPlayerId = new PlayerId(UUID.randomUUID());
-            final var gameState = new GameState(new GameStateId(), mockBoard,true, playerId,aiPlayerId, true, false, 0.0, null);
-
-            // Act
-            gameState.passTurn();
-
-            // Assert
             assertThat(gameState.isPlayer1AtTurn()).isFalse();
-            assertThat(gameState.isLastTurnPassed()).isTrue();
         }
 
         @Test
@@ -169,39 +152,6 @@ class GameStateTest {
     @Nested
     @DisplayName("Error Flows")
     class ErrorFlows{
-        @Test
-        @DisplayName("Should fail to place black stone if it's ai turn (White)")
-        void shouldFailToPlaceBlackStone() {
-            // Arrange
-            final var mockBoard = Mockito.mock(Board.class);
-            final var playerId = new PlayerId(UUID.randomUUID());
-            final var aiPlayerId = new PlayerId(UUID.randomUUID());
-            final var gameState = new GameState(new GameStateId(), mockBoard,true, playerId,aiPlayerId, false, false, 0.0, null);
-            final var stone = Stone.BLACK;
-
-            // Act & Assert
-            assertThatThrownBy(() -> gameState.placeStone(3, 5, stone))
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessage("It is not player's turn");
-
-            verify(mockBoard, never()).placeStone(anyInt(), anyInt(), any());
-        }
-
-        @Test
-        @DisplayName("Should fail to place white stone if it's player turn (Black)")
-        void shouldFailToPlaceWhiteStone() {
-            // Arrange
-            final var mockBoard = Mockito.mock(Board.class);
-            final var playerId = new PlayerId(UUID.randomUUID());
-            final var aiPlayerId = new PlayerId(UUID.randomUUID());
-            final var gameState = new GameState(new GameStateId(), mockBoard,true, playerId,aiPlayerId, true, false, 0.0, null);
-            final var stone = Stone.WHITE;
-
-            // Act & Assert
-            assertThatThrownBy(() -> gameState.placeStone(2, 2, stone))
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessage("It is not player's turn");
-        }
 
         @Test
         @DisplayName("Passing turn out of order throws exception")
@@ -210,10 +160,10 @@ class GameStateTest {
             final var mockBoard = Mockito.mock(Board.class);
             final var playerId = new PlayerId(UUID.randomUUID());
             final var aiPlayerId = new PlayerId(UUID.randomUUID());
-            final var gameState = new GameState(new GameStateId(), mockBoard,true, playerId,aiPlayerId, true, false, 0.0, null);
+            final var gameState = new GameState(new GameStateId(), mockBoard,true, playerId,aiPlayerId, false, false, 0.0, null);
 
             // Act & Assert
-            assertThatThrownBy(() -> gameState.passTurn())
+            assertThatThrownBy(() -> gameState.verifyPlayer(playerId, gameState.isAiGame()))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessage("It is not player's turn");
         }

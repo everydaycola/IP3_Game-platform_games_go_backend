@@ -57,7 +57,6 @@ public class GameState {
         log.info("Passing turn");
         if (!this.isLastTurnPassed) {
             this.isLastTurnPassed = true;
-            switchPlayerAtTurn();
             return;
         }
         this.score = this.board.calculateScore() - KOMI;
@@ -72,7 +71,12 @@ public class GameState {
 
     public void verifyPlayer(PlayerId currentPlayerId, Boolean isAiGame) {
         if (isAiGame) {
-            if (!player1.equals(currentPlayerId)) throw new NotFoundException("Game was not found");
+            if (!player1.equals(currentPlayerId)) {
+                throw new NotFoundException("Game was not found");
+            }
+            if (!player1AtTurn) {
+                throw new IllegalStateException("It is not player's turn");
+            }
         } else {
             if (!player1.equals(currentPlayerId) && !player2.equals(currentPlayerId))
                 throw new NotFoundException("Game was not found.");

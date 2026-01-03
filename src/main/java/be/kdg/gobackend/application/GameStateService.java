@@ -27,7 +27,7 @@ public class GameStateService {
     private final AiCatalog aiCatalog;
     private final RabbitAchievementPublisher achievementPublisher;
 
-    public GameState getState(GameStateId stateId, PlayerId playerId) {
+    public GameState getState(GameStateId stateId) {
         log.info("getting the state with id {}", stateId);
         return gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
     }
@@ -90,8 +90,8 @@ public class GameStateService {
             gameState.passTurn();
         } else {
             gameState.placeStone(aiResponse.row(), aiResponse.col(), Stone.BLACK);
+            gameState.switchPlayerAtTurn();
         }
-        gameState.switchPlayerAtTurn();
         gameStateRepository.save(gameState);
         return gameState;
     }
