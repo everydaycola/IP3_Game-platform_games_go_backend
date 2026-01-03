@@ -29,13 +29,13 @@ public class GameStateService {
 
     public GameState getState(GameStateId stateId, PlayerId playerId) {
         log.info("getting the state with id {}", stateId);
-        final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
-        gameState.verifyPlayer(playerId, gameState.isAiGame());
-        return gameState;
+        return gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
     }
 
     public GameState startAiGame(PlayerId playerId, int size) {
         log.info("player {} starting a game of size {}", playerId, size);
+        final var notFinishedAiGame = gameStateRepository.getOngoingAiGameForPlayer(playerId);
+        notFinishedAiGame.ifPresent(gameStateRepository::removeGame);
         final var gameState = new GameState(size, playerId,new PlayerId(UUID.randomUUID()), true);
         gameStateRepository.save(gameState);
         achievementPublisher.unlock(playerId.id(), Achievement.LETS_GO);
@@ -57,6 +57,7 @@ public class GameStateService {
     public GameState placeStone(GameStateId stateId, int x, int y, PlayerId playerId) {
         log.info("player in match {} placing a stone at {}, {}", stateId, x, y);
         final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
+        gameState.verifyPlayer(playerId, gameState.isAiGame());
         final Stone toPlaceStone;
         if(gameState.isPlayer1AtTurn()){
             toPlaceStone = Stone.WHITE;

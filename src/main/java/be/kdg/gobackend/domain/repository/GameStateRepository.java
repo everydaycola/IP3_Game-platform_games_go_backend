@@ -10,4 +10,6 @@ public interface GameStateRepository {
     void save(GameState gameState);
     Optional<GameState> get(GameStateId id);
     Optional<GameState> getPlayingGameForPlayer(PlayerId playerId);
+    Optional<GameState> getOngoingAiGameForPlayer(PlayerId playerId);
+    void removeGame(GameState notFinishedAiGame);
 }

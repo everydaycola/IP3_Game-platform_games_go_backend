@@ -29,7 +29,6 @@ public class GameState {
         this.id = new GameStateId();
         this.board = new Board(size);
         this.isAiGame = isAiGame;
-        // the player always starts and is always at turn first (thus playing black)
         this.player1AtTurn = true;
         this.isLastTurnPassed = false;
         this.score = 0.0;
@@ -42,8 +41,6 @@ public class GameState {
 
     public void placeStone(int x, int y, Stone stone) {
         log.info("placing a stone at {}, {}", x, y);
-        //final var playerTurn = stone.equals(Stone.BLACK);
-        //if (player1AtTurn != playerTurn) throw new IllegalStateException("It is not player's turn");
         board.placeStone(x, y, stone);
         this.isLastTurnPassed = false;
     }
@@ -77,7 +74,6 @@ public class GameState {
         if (isAiGame) {
             if (!player1.equals(currentPlayerId)) throw new NotFoundException("Game was not found");
         } else {
-
             if (!player1.equals(currentPlayerId) && !player2.equals(currentPlayerId))
                 throw new NotFoundException("Game was not found.");
             if (this.player1AtTurn && !player1.equals(currentPlayerId))
