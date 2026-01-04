@@ -9,12 +9,18 @@ import be.kdg.gobackend.domain.player.PlayerId;
 import be.kdg.gobackend.domain.repository.AiCatalog;
 import be.kdg.gobackend.domain.repository.GameStateRepository;
 import be.kdg.gobackend.infrastructure.gamestate.ai.dtos.AiRequestBodyDto;
+import be.kdg.gobackend.infrastructure.gamestate.analytics.AnalyticsMessagePublisher;
+import be.kdg.gobackend.infrastructure.gamestate.analytics.messages.GameEndedMessage;
+import be.kdg.gobackend.infrastructure.gamestate.analytics.messages.GameStartedMessage;
+import be.kdg.gobackend.infrastructure.gamestate.analytics.messages.SessionStartedMessage;
+import be.kdg.gobackend.infrastructure.gamestate.analytics.messages.WinnerDeclaredMessage;
 import be.kdg.gobackend.infrastructure.gamestate.rabbitMQ.RabbitAchievementPublisher;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -26,6 +32,7 @@ public class GameStateService {
     private final GameStateRepository gameStateRepository;
     private final AiCatalog aiCatalog;
     private final RabbitAchievementPublisher achievementPublisher;
+    private final AnalyticsMessagePublisher analyticsMessagePublisher;
 
     public GameState getState(GameStateId stateId) {
         log.info("getting the state with id {}", stateId);
@@ -36,21 +43,26 @@ public class GameStateService {
         log.info("player {} starting a game of size {}", playerId, size);
         final var notFinishedAiGame = gameStateRepository.getOngoingAiGameForPlayer(playerId);
         notFinishedAiGame.ifPresent(gameStateRepository::removeGame);
-        final var gameState = new GameState(size, playerId,new PlayerId(UUID.randomUUID()), true);
+        final var gameState = new GameState(size, playerId,new PlayerId(UUID.randomUUID()), true, LocalDateTime.now());
         gameStateRepository.save(gameState);
         achievementPublisher.unlock(playerId.id(), Achievement.LETS_GO);
         if (size == 19) achievementPublisher.unlock(playerId.id(), Achievement.GO_BIG_OR_GO_HOME);
+        analyticsMessagePublisher.publishGameStartedMessage(GameStartedMessage.of(gameState));
         return gameState;
     }
 
     public GameState startGame(PlayerId player1Id, PlayerId player2Id, int size) {
         log.info("player {} started a games vs player {} of size {}", player1Id.id(), player2Id.id(), size);
-        final var gameState = new GameState(size, player1Id, player2Id, false);
+        final var gameState = new GameState(size, player1Id, player2Id, false, LocalDateTime.now());
         gameStateRepository.save(gameState);
         achievementPublisher.unlock(player1Id.id(), Achievement.LETS_GO);
         achievementPublisher.unlock(player2Id.id(), Achievement.LETS_GO);
-        if(size == 19) achievementPublisher.unlock(player1Id.id(), Achievement.GO_BIG_OR_GO_HOME);
-        if(size == 19) achievementPublisher.unlock(player2Id.id(), Achievement.GO_BIG_OR_GO_HOME);
+        if(size == 19) {
+            achievementPublisher.unlock(player1Id.id(), Achievement.GO_BIG_OR_GO_HOME);
+            achievementPublisher.unlock(player2Id.id(), Achievement.GO_BIG_OR_GO_HOME);
+        }
+        analyticsMessagePublisher.publishGameStartedMessage(GameStartedMessage.of(gameState));
+        analyticsMessagePublisher.publishSessionStartedMessage(SessionStartedMessage.of(gameState));
         return gameState;
     }
 
@@ -101,6 +113,10 @@ public class GameStateService {
         final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
         gameState.verifyPlayer(playerId, gameState.isAiGame());
         gameState.passTurn();
+        if (gameState.getWinner() != Stone.EMPTY) {
+            analyticsMessagePublisher.publishGameEndedMessage(GameEndedMessage.of(gameState));
+            analyticsMessagePublisher.publishWinnerDeclaredMessage(WinnerDeclaredMessage.of(gameState));
+        }
         gameStateRepository.save(gameState);
         achievementPublisher.unlock(playerId.id(), Achievement.GO_AHEAD);
         return gameState;
