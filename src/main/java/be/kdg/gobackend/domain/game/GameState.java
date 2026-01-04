@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
+
 // note in general, the game only allows user vs AI at the moment.
 @Getter
 @Slf4j
@@ -21,8 +23,9 @@ public class GameState {
     private boolean isLastTurnPassed;
     private double score;
     private Stone winner;
+    private LocalDateTime createdAt;
 
-    public GameState(int size, PlayerId player1, PlayerId player2, boolean isAiGame) {
+    public GameState(int size, PlayerId player1, PlayerId player2, boolean isAiGame, LocalDateTime createdAt) {
         log.info("Creating a new game with player {} of size {}", player1, size);
         this.player1 = player1;
         this.player2 = player2;
@@ -33,6 +36,7 @@ public class GameState {
         this.isLastTurnPassed = false;
         this.score = 0.0;
         this.winner = Stone.EMPTY;
+        this.createdAt = createdAt;
     }
 
     public String[][] getBoardForDto() {
