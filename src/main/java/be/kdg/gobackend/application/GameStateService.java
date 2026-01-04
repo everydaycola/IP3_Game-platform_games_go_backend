@@ -1,6 +1,6 @@
 package be.kdg.gobackend.application;
 
-import be.kdg.gobackend.api.dto.GameStateDto;
+import be.kdg.gobackend.domain.achievements.Achievement;
 import be.kdg.gobackend.domain.exception.NotFoundException;
 import be.kdg.gobackend.domain.game.GameState;
 import be.kdg.gobackend.domain.game.GameStateId;
@@ -9,19 +9,21 @@ import be.kdg.gobackend.domain.player.PlayerId;
 import be.kdg.gobackend.domain.repository.AiCatalog;
 import be.kdg.gobackend.domain.repository.GameStateRepository;
 import be.kdg.gobackend.infrastructure.gamestate.ai.dtos.AiRequestBodyDto;
+import be.kdg.gobackend.infrastructure.gamestate.rabbitMQ.RabbitAchievementPublisher;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-@Service @Transactional @Slf4j public class GameStateService {
+@Service
+@Transactional
+@Slf4j
+@RequiredArgsConstructor
+public class GameStateService {
 
     private final GameStateRepository gameStateRepository;
     private final AiCatalog aiCatalog;
-
-    public GameStateService(GameStateRepository gameStateRepository, AiCatalog aiCatalog) {
-        this.gameStateRepository = gameStateRepository;
-        this.aiCatalog = aiCatalog;
-    }
+    private final RabbitAchievementPublisher achievementPublisher;
 
     public GameState getState(GameStateId stateId, PlayerId playerId) {
         log.info("getting the state with id {}", stateId);
@@ -34,6 +36,8 @@ import org.springframework.stereotype.Service;
         log.info("player {} starting a game of size {}", playerId, size);
         final var gameState = new GameState(size, playerId);
         gameStateRepository.save(gameState);
+        achievementPublisher.unlock(playerId.id(), Achievement.LETS_GO);
+        if (size == 19) achievementPublisher.unlock(playerId.id(), Achievement.GO_BIG_OR_GO_HOME);
         return gameState;
     }
 
@@ -43,6 +47,15 @@ import org.springframework.stereotype.Service;
         gameState.verifyPlayer(playerId);
         gameState.placeStone(x, y, Stone.BLACK);
         gameStateRepository.save(gameState);
+        switch (gameState.getWinner()) {
+            case BLACK:
+                achievementPublisher.unlock(playerId.id(), Achievement.LETS_GOOO);
+                break;
+            case WHITE:
+                achievementPublisher.unlock(playerId.id(), Achievement.GO_HOME);
+                break;
+            case EMPTY: // do nothing
+        }
         return gameState;
     }
 
@@ -68,6 +81,7 @@ import org.springframework.stereotype.Service;
         gameState.verifyPlayer(playerId);
         gameState.passTurn(Stone.BLACK);
         gameStateRepository.save(gameState);
+        achievementPublisher.unlock(playerId.id(), Achievement.GO_AHEAD);
         return gameState;
     }
 

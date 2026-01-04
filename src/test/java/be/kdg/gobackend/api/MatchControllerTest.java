@@ -1,6 +1,7 @@
 package be.kdg.gobackend.api;
 
 import be.kdg.gobackend.TestHelpers;
+import be.kdg.gobackend.domain.achievements.Achievement;
 import be.kdg.gobackend.infrastructure.gamestate.ai.dtos.AiRequestBodyDto;
 import be.kdg.gobackend.application.GameStateService;
 import be.kdg.gobackend.domain.game.GameState;
@@ -11,6 +12,7 @@ import be.kdg.gobackend.infrastructure.gamestate.DbGameStateRepository;
 import be.kdg.gobackend.infrastructure.gamestate.ai.dtos.AiAnswerDto;
 import be.kdg.gobackend.infrastructure.gamestate.jpa.JpaGameStateEntity;
 import be.kdg.gobackend.infrastructure.gamestate.jpa.JpaGameStateRepository;
+import be.kdg.gobackend.infrastructure.gamestate.rabbitMQ.RabbitAchievementPublisher;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -41,6 +43,9 @@ class MatchControllerTest {
     @MockitoBean
     private AiCatalog aiCatalog;
 
+    @MockitoBean
+    private RabbitAchievementPublisher achievementPublisher;
+
     @Nested
     @DisplayName("Success Flows")
     class SuccessFlows {
@@ -48,14 +53,12 @@ class MatchControllerTest {
         @DisplayName("Should successfully let the Ai make a new move")
         void aiMakesAMove() {
             // Arrange
-            UUID playerUUID = UUID.randomUUID();
-            final var playerId = new PlayerId(playerUUID);
-            final var match = new GameState(9, playerId);
+            final var playerUUID = UUID.randomUUID();
+            final var match = new GameState(9, new PlayerId(playerUUID));
             match.placeStone(0,8, Stone.BLACK);
-            final var jpaEntity = JpaGameStateEntity.fromDomain(match);
 
             when(jpaGameStateRepository.findById(match.getId().id()))
-                    .thenReturn(Optional.of(jpaEntity));
+                    .thenReturn(Optional.of(JpaGameStateEntity.fromDomain(match)));
             final var aiAnswerDto = new AiAnswerDto(50, 5, 6);
             when(aiCatalog.askForMove(Mockito.any(AiRequestBodyDto.class)))
                     .thenReturn(Optional.of(aiAnswerDto));
@@ -81,20 +84,19 @@ class MatchControllerTest {
             Mockito.verify(jpaGameStateRepository).findById(Mockito.any(UUID.class));
             Mockito.verify(jpaGameStateRepository).save(Mockito.any(JpaGameStateEntity.class));
             Mockito.verify(aiCatalog).askForMove(Mockito.any(AiRequestBodyDto.class));
+            Mockito.verify(achievementPublisher, never()).unlock(Mockito.any(UUID.class),Mockito.any(Achievement.class));
         }
 
         @Test
         @DisplayName("Should should pass")
         void aiPasses() {
             // Arrange
-            UUID playerUUID = UUID.randomUUID();
-            final var playerId = new PlayerId(playerUUID);
-            final var match = new GameState(9, playerId);
+            final var playerUUID = UUID.randomUUID();
+            final var match = new GameState(9, new PlayerId(playerUUID));
             match.passTurn(Stone.BLACK);
-            final var jpaEntity = JpaGameStateEntity.fromDomain(match);
 
             when(jpaGameStateRepository.findById(match.getId().id()))
-                    .thenReturn(Optional.of(jpaEntity));
+                    .thenReturn(Optional.of(JpaGameStateEntity.fromDomain(match)));
             when(aiCatalog.askForMove(Mockito.any(AiRequestBodyDto.class)))
                     .thenReturn(Optional.of(new AiAnswerDto(81, -1, -1)));
 
@@ -118,6 +120,7 @@ class MatchControllerTest {
             Mockito.verify(jpaGameStateRepository).findById(Mockito.any(UUID.class));
             Mockito.verify(jpaGameStateRepository).save(Mockito.any(JpaGameStateEntity.class));
             Mockito.verify(aiCatalog).askForMove(Mockito.any(AiRequestBodyDto.class));
+            Mockito.verify(achievementPublisher, never()).unlock(Mockito.any(UUID.class),Mockito.any(Achievement.class));
         }
     }
 
@@ -153,6 +156,7 @@ class MatchControllerTest {
             Mockito.verify(jpaGameStateRepository).findById(Mockito.any(UUID.class));
             Mockito.verify(jpaGameStateRepository, never()).save(Mockito.any(JpaGameStateEntity.class));
             Mockito.verify(aiCatalog).askForMove(Mockito.any(AiRequestBodyDto.class));
+            Mockito.verify(achievementPublisher, never()).unlock(Mockito.any(UUID.class),Mockito.any(Achievement.class));
         }
     }
 }

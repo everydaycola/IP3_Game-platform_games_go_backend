@@ -8,10 +8,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @AllArgsConstructor
 @ConfigurationProperties(prefix = "spring.rabbitmq.fourteengames")
 public class RabbitMQProperties {
-    private final String gameUrl;
     private final String exchangeName;
     private final String registerGameQueue;
     private final String registerGameBinding;
-    private final String unlockAchievementQueue;
     private final String unlockAchievementBinding;
 }
