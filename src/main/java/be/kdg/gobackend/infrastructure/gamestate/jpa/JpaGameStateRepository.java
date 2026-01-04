@@ -7,5 +7,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface JpaGameStateRepository extends JpaRepository<JpaGameStateEntity, UUID> {
-    Optional<JpaGameStateEntity> findFirstByPlayerAndWinnerAndBoardSize(UUID player, Stone winner, int boardSize);
+    Optional<JpaGameStateEntity> findFirstByPlayer1OrPlayer2AndWinner(UUID player1, UUID player2, Stone winner);
+    Optional<JpaGameStateEntity> findByPlayer1AndIsAiGameAndWinner(UUID player1, boolean isAiGame, Stone winner);
 }

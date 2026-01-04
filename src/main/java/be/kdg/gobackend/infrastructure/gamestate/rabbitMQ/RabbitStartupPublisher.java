@@ -6,6 +6,8 @@ import be.kdg.gobackend.domain.achievements.Achievement;
 import be.kdg.gobackend.api.dto.registeration.FullGameDto;
 import be.kdg.gobackend.config.rabbitMQ.RabbitMQProperties;
 import be.kdg.gobackend.infrastructure.gamestate.rabbitMQ.messages.RegisterGameMessage;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpException;
@@ -16,8 +18,12 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -36,9 +42,14 @@ public class RabbitStartupPublisher {
     @EventListener(ApplicationReadyEvent.class)
     public void publishStartupEvent() {
 
+        final var configurableSettings = loadConfigurableSettings();
+
         final var updatedDto = new FullGameDto(
                 registrationConfig.getId(),
                 registrationConfig.getName(),
+                registrationConfig.getMaxPlayers(),
+                registrationConfig.getAiStartGameEndpoint(),
+                registrationConfig.getStartGameEndpoint(),
                 registrationConfig.getDescription(),
                 registrationConfig.getPrice(),
                 registrationConfig.getImage(),
@@ -50,7 +61,8 @@ public class RabbitStartupPublisher {
                                 a.getId(),
                                 a.getTitle(),
                                 a.getDescription()))
-                        .toList()
+                        .toList(),
+                configurableSettings
         );
 
         final var futureRef = new AtomicReference<ScheduledFuture<?>>();
@@ -79,5 +91,30 @@ public class RabbitStartupPublisher {
         }, Duration.ofSeconds(5));
 
         futureRef.set(future);
+    }
+
+    private Map<String, Object> loadConfigurableSettings() {
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream("configurableSettings.json")) {
+            if (is == null) {
+                log.error("configurableSettings.json not found in resources");
+                return Collections.emptyMap();
+            }
+
+            final var objectMapper = new ObjectMapper();
+            var rootNode = objectMapper.readTree(is);
+            var settingsNode = rootNode.get("configurableSettings");
+            if(settingsNode == null || settingsNode.isNull()){
+                log.error("configurableSettings key not found in configurableSettings.json");
+                return Collections.emptyMap();
+            }
+
+            return objectMapper.convertValue(
+                    settingsNode,
+                    new TypeReference<Map<String, Object>>() {}
+            );
+        } catch (IOException e) {
+            log.error("Failed to read configurableSettings.json", e);
+            return Collections.emptyMap();
+        }
     }
 }

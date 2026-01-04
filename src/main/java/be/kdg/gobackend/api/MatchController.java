@@ -1,6 +1,7 @@
 package be.kdg.gobackend.api;
 
 import be.kdg.gobackend.api.dto.GameStateDto;
+import be.kdg.gobackend.api.dto.NewAiMatchDto;
 import be.kdg.gobackend.api.dto.NewMatchDto;
 import be.kdg.gobackend.api.dto.NewStoneDto;
 import be.kdg.gobackend.application.GameStateService;
@@ -23,28 +24,36 @@ public class MatchController {
 
     final GameStateService gameStateService;
 
-    @PostMapping()
-    public ResponseEntity<GameStateDto> startGame(@AuthenticationPrincipal Jwt token, @RequestBody NewMatchDto newMatchDto){
+    @PostMapping
+    public ResponseEntity<GameStateDto> startGame(@AuthenticationPrincipal Jwt token, @RequestBody NewMatchDto newAiMatchDto){
         log.info("Starting a new game");
+        final var player1Id = PlayerId.fromToken(token);
+        final var player2Id = new PlayerId(newAiMatchDto.player2Id());
+        final var state = gameStateService.startGame(player1Id,player2Id,newAiMatchDto.settings().boardSize());
+        return ResponseEntity.ok(GameStateDto.from(state));
+    }
+
+    @PostMapping("/ai")
+    public ResponseEntity<GameStateDto> startAiGame(@AuthenticationPrincipal Jwt token, @RequestBody NewAiMatchDto newAiMatchDto){
+        log.info("Starting a new game vs AI");
         final var playerId = PlayerId.fromToken(token);
-        final var state = gameStateService.start(playerId, newMatchDto.size());
+        final var state = gameStateService.startAiGame(playerId, newAiMatchDto.size());
         return ResponseEntity.ok(GameStateDto.from(state));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GameStateDto> getGame(@AuthenticationPrincipal Jwt token, @PathVariable UUID id){
+    public ResponseEntity<GameStateDto> getGame(@PathVariable UUID id){
         log.info("Getting game with id {}", id);
         final var stateId = new GameStateId(id);
-        final var playerId = PlayerId.fromToken(token);
-        final var state = gameStateService.getState(stateId, playerId);
+        final var state = gameStateService.getState(stateId);
         return ResponseEntity.ok(GameStateDto.from(state));
     }
 
-    @GetMapping("/playing/{size}")
-    public ResponseEntity<GameStateDto> getPlayingGame(@AuthenticationPrincipal Jwt token, @PathVariable int size){
+    @GetMapping("/playing")
+    public ResponseEntity<GameStateDto> getPlayingGame(@AuthenticationPrincipal Jwt token){
         final var playerId = PlayerId.fromToken(token);
         log.info("Getting playing game for user {}", playerId.id());
-        final var state = gameStateService.getPlayingStateForPlayerAndState(playerId, size);
+        final var state = gameStateService.getPlayingStateForPlayerAndState(playerId);
         return ResponseEntity.ok(GameStateDto.from(state));
     }
 

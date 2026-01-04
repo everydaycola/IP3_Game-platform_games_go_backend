@@ -32,8 +32,20 @@ public class DbGameStateRepository implements GameStateRepository {
     }
 
     @Override
-    public Optional<GameState> getPlayingGameForPlayerAndSize(PlayerId playerId, int size) {
-        log.info("Getting game for player {}  and size {} from database", playerId.id(), size);
-        return gameStateRepository.findFirstByPlayerAndWinnerAndBoardSize(playerId.id(), Stone.EMPTY, size).map(JpaGameStateEntity::toDomain);
+    public Optional<GameState> getPlayingGameForPlayer(PlayerId playerId) {
+        log.info("Getting game for player {}  from database", playerId.id());
+        return gameStateRepository.findFirstByPlayer1OrPlayer2AndWinner(playerId.id(), playerId.id(), Stone.EMPTY).map(JpaGameStateEntity::toDomain);
+    }
+
+    @Override
+    public Optional<GameState> getOngoingAiGameForPlayer(PlayerId playerId) {
+        log.info("Searching if player {} has non finished AI games", playerId.id());
+        return gameStateRepository.findByPlayer1AndIsAiGameAndWinner(playerId.id(), true, Stone.EMPTY).map(JpaGameStateEntity::toDomain);
+    }
+
+    @Override
+    public void removeGame(GameState notFinishedAiGame) {
+        log.info("Found a not finished AI game for a player, removing this for startup of new ai game");
+        gameStateRepository.delete(JpaGameStateEntity.fromDomain(notFinishedAiGame));
     }
 }

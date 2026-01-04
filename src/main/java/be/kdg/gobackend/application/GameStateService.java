@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @Transactional
 @Slf4j
@@ -25,27 +27,45 @@ public class GameStateService {
     private final AiCatalog aiCatalog;
     private final RabbitAchievementPublisher achievementPublisher;
 
-    public GameState getState(GameStateId stateId, PlayerId playerId) {
+    public GameState getState(GameStateId stateId) {
         log.info("getting the state with id {}", stateId);
-        final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
-        gameState.verifyPlayer(playerId);
-        return gameState;
+        return gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
     }
 
-    public GameState start(PlayerId playerId, int size) {
+    public GameState startAiGame(PlayerId playerId, int size) {
         log.info("player {} starting a game of size {}", playerId, size);
-        final var gameState = new GameState(size, playerId);
+        final var notFinishedAiGame = gameStateRepository.getOngoingAiGameForPlayer(playerId);
+        notFinishedAiGame.ifPresent(gameStateRepository::removeGame);
+        final var gameState = new GameState(size, playerId,new PlayerId(UUID.randomUUID()), true);
         gameStateRepository.save(gameState);
         achievementPublisher.unlock(playerId.id(), Achievement.LETS_GO);
         if (size == 19) achievementPublisher.unlock(playerId.id(), Achievement.GO_BIG_OR_GO_HOME);
         return gameState;
     }
 
+    public GameState startGame(PlayerId player1Id, PlayerId player2Id, int size) {
+        log.info("player {} started a games vs player {} of size {}", player1Id.id(), player2Id.id(), size);
+        final var gameState = new GameState(size, player1Id, player2Id, false);
+        gameStateRepository.save(gameState);
+        achievementPublisher.unlock(player1Id.id(), Achievement.LETS_GO);
+        achievementPublisher.unlock(player2Id.id(), Achievement.LETS_GO);
+        if(size == 19) achievementPublisher.unlock(player1Id.id(), Achievement.GO_BIG_OR_GO_HOME);
+        if(size == 19) achievementPublisher.unlock(player2Id.id(), Achievement.GO_BIG_OR_GO_HOME);
+        return gameState;
+    }
+
     public GameState placeStone(GameStateId stateId, int x, int y, PlayerId playerId) {
         log.info("player in match {} placing a stone at {}, {}", stateId, x, y);
         final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
-        gameState.verifyPlayer(playerId);
-        gameState.placeStone(x, y, Stone.BLACK);
+        gameState.verifyPlayer(playerId, gameState.isAiGame());
+        final Stone toPlaceStone;
+        if(gameState.isPlayer1AtTurn()){
+            toPlaceStone = Stone.WHITE;
+        }else{
+            toPlaceStone = Stone.BLACK;
+        }
+        gameState.placeStone(x, y, toPlaceStone);
+        gameState.switchPlayerAtTurn();
         gameStateRepository.save(gameState);
         switch (gameState.getWinner()) {
             case BLACK:
@@ -54,7 +74,7 @@ public class GameStateService {
             case WHITE:
                 achievementPublisher.unlock(playerId.id(), Achievement.GO_HOME);
                 break;
-            case EMPTY: // do nothing
+            case EMPTY:
         }
         return gameState;
     }
@@ -64,12 +84,13 @@ public class GameStateService {
         final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
         final var aiResponse = aiCatalog.askForMove(AiRequestBodyDto.from(gameState))
                                         .orElseThrow(() -> new IllegalStateException("Ai could not make a move"));
-        gameState.verifyPlayer(playerId);
+        gameState.verifyPlayer(playerId, gameState.isAiGame());
         log.info("ai chose row {}, col {}, move {}", aiResponse.row(), aiResponse.col(), aiResponse.best_move());
         if (aiResponse.col() == -1 && aiResponse.row() == -1) {
-            gameState.passTurn(Stone.WHITE);
+            gameState.passTurn();
         } else {
-            gameState.placeStone(aiResponse.row(), aiResponse.col(), Stone.WHITE);
+            gameState.placeStone(aiResponse.row(), aiResponse.col(), Stone.BLACK);
+            gameState.switchPlayerAtTurn();
         }
         gameStateRepository.save(gameState);
         return gameState;
@@ -78,16 +99,17 @@ public class GameStateService {
     public GameState passTurn(GameStateId stateId, PlayerId playerId) {
         log.info("passing turn to player in match {}", stateId);
         final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
-        gameState.verifyPlayer(playerId);
-        gameState.passTurn(Stone.BLACK);
+        gameState.verifyPlayer(playerId, gameState.isAiGame());
+        gameState.passTurn();
         gameStateRepository.save(gameState);
         achievementPublisher.unlock(playerId.id(), Achievement.GO_AHEAD);
         return gameState;
     }
 
-    public GameState getPlayingStateForPlayerAndState(PlayerId playerId, int size) {
-        log.info("getting the state for player {} and size {}", playerId, size);
-        return gameStateRepository.getPlayingGameForPlayerAndSize(playerId, size)
+    public GameState getPlayingStateForPlayerAndState(PlayerId playerId) {
+        log.info("getting the state for player {}", playerId);
+        return gameStateRepository.getPlayingGameForPlayer(playerId)
                 .orElseThrow(() -> new NotFoundException("No game found for player " + playerId.id()));
     }
+
 }
