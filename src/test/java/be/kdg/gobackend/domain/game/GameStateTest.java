@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,7 +26,7 @@ class GameStateTest {
             final var mockBoard = Mockito.mock(Board.class);
             final var playerId = new PlayerId(UUID.randomUUID());
             final var aiPlayerId = new PlayerId(UUID.randomUUID());
-            final var gameState = new GameState(new GameStateId(), mockBoard,true, playerId,aiPlayerId, true, false, 0.0, null);
+            final var gameState = new GameState(new GameStateId(), mockBoard,true, playerId,aiPlayerId, true, false, 0.0, null, LocalDateTime.now());
 
             final var x = 3;
             final var y = 5;
@@ -47,7 +48,7 @@ class GameStateTest {
             final var mockBoard = Mockito.mock(Board.class);
             final var playerId = new PlayerId(UUID.randomUUID());
             final var aiPlayerId = new PlayerId(UUID.randomUUID());
-            final var gameState = new GameState(new GameStateId(), mockBoard,true, playerId,aiPlayerId, false, false, 0.0, null);
+            final var gameState = new GameState(new GameStateId(), mockBoard,true, playerId,aiPlayerId, false, false, 0.0, null, LocalDateTime.now());
 
             final var x = 2;
             final var y = 2;
@@ -68,7 +69,7 @@ class GameStateTest {
             final var mockBoard = Mockito.mock(Board.class);
             final var playerId = new PlayerId(UUID.randomUUID());
             final var aiPlayerId = new PlayerId(UUID.randomUUID());
-            final var gameState = new GameState(new GameStateId(), mockBoard,true, playerId,aiPlayerId, false, true, 0.0, null);
+            final var gameState = new GameState(new GameStateId(), mockBoard,true, playerId,aiPlayerId, false, true, 0.0, null, LocalDateTime.now());
 
             when(mockBoard.calculateScore()).thenReturn(10.0);
 
@@ -87,7 +88,7 @@ class GameStateTest {
             final var mockBoard = Mockito.mock(Board.class);
             final var playerId = new PlayerId(UUID.randomUUID());
             final var aiPlayerId = new PlayerId(UUID.randomUUID());
-            final var gameState = new GameState(new GameStateId(), mockBoard,true, playerId,aiPlayerId, false, true, 0.0, null);
+            final var gameState = new GameState(new GameStateId(), mockBoard,true, playerId,aiPlayerId, false, true, 0.0, null, LocalDateTime.now());
 
             when(mockBoard.calculateScore()).thenReturn(6.0);
 
@@ -136,7 +137,7 @@ class GameStateTest {
             final var mockBoard = Mockito.mock(Board.class);
             final var playerId = new PlayerId(UUID.randomUUID());
             final var aiPlayerId = new PlayerId(UUID.randomUUID());
-            final var gameState = new GameState(new GameStateId(), mockBoard,true, playerId,aiPlayerId, true, false, 0.0, null);
+            final var gameState = new GameState(new GameStateId(), mockBoard,true, playerId,aiPlayerId, true, false, 0.0, null, LocalDateTime.now());
             final String[][] expected = new String[0][0];
 
             when(mockBoard.getBoardForDto()).thenReturn(expected);
@@ -160,7 +161,7 @@ class GameStateTest {
             final var mockBoard = Mockito.mock(Board.class);
             final var playerId = new PlayerId(UUID.randomUUID());
             final var aiPlayerId = new PlayerId(UUID.randomUUID());
-            final var gameState = new GameState(new GameStateId(), mockBoard,true, playerId,aiPlayerId, false, false, 0.0, null);
+            final var gameState = new GameState(new GameStateId(), mockBoard,true, playerId,aiPlayerId, false, false, 0.0, null, LocalDateTime.now());
 
             // Act & Assert
             assertThatThrownBy(() -> gameState.verifyPlayer(playerId, gameState.isAiGame()))
