@@ -101,8 +101,16 @@ public class RabbitStartupPublisher {
             }
 
             final var objectMapper = new ObjectMapper();
+            var rootNode = objectMapper.readTree(is);
+            var settingsNode = rootNode.get("configurableSettings");
+            if(settingsNode == null || settingsNode.isNull()){
+                log.error("configurableSettings key not found in configurableSettings.json");
+                return Collections.emptyMap();
+            }
 
-            return objectMapper.readValue(is, new TypeReference<>() {}
+            return objectMapper.convertValue(
+                    settingsNode,
+                    new TypeReference<Map<String, Object>>() {}
             );
         } catch (IOException e) {
             log.error("Failed to read configurableSettings.json", e);
