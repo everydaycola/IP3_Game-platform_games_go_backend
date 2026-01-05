@@ -107,7 +107,7 @@ class GameStateTest {
             final var uuid = UUID.randomUUID();
             final var playerId = new PlayerId(uuid);
             final var aiPlayerId = new PlayerId(UUID.randomUUID());
-            final var gameState = new GameState(9, playerId,aiPlayerId,true);
+            final var gameState = new GameState(9, playerId,aiPlayerId,true, LocalDateTime.now());
 
             // Act & Assert (Should not throw error)
             gameState.verifyPlayer(new PlayerId(uuid), gameState.isAiGame());
@@ -119,7 +119,7 @@ class GameStateTest {
             // Arrange
             final var playerId = new PlayerId(UUID.randomUUID());
             final var aiPlayerId = new PlayerId(UUID.randomUUID());
-            final var gameState = new GameState(13, playerId,aiPlayerId,true);
+            final var gameState = new GameState(13, playerId,aiPlayerId,true, LocalDateTime.now());
 
             // Act & Assert
             assertThat(gameState.getSize()).isEqualTo(13);
@@ -175,7 +175,7 @@ class GameStateTest {
             // Arrange
             final var playerId = new PlayerId(UUID.randomUUID());
             final var aiPlayerId = new PlayerId(UUID.randomUUID());
-            final var gameState = new GameState(9, playerId,aiPlayerId, true);
+            final var gameState = new GameState(9, playerId,aiPlayerId, true, LocalDateTime.now());
             final var otherPlayer = new PlayerId(UUID.randomUUID());
 
             // Act & Assert
