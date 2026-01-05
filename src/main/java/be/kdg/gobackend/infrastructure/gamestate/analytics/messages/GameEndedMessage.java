@@ -25,7 +25,7 @@ public record GameEndedMessage(
                 gameState.getId().id(),
                 gameState.getPlayer1().id(),
                 gameState.getId().id(),
-                (int) gameState.getCreatedAt().atOffset(ZoneOffset.UTC).until(LocalDateTime.now(), ChronoUnit.SECONDS),
+                (int) ChronoUnit.SECONDS.between(gameState.getCreatedAt(), java.time.LocalDateTime.now()),
                 true,
                 LocalDateTime.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT)
         );
