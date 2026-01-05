@@ -26,7 +26,7 @@ public record GameStartedMessage(
                 gameState.getId().id(),
                 "go",
                 (gameState.isAiGame()) ? 1 : 2,
-                gameState.getCreatedAt().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT)
+                LocalDateTime.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT)
         );
     }
 }

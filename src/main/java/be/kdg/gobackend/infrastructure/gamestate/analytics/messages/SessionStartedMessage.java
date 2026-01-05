@@ -25,7 +25,7 @@ public record SessionStartedMessage(
                 gameState.getId().id(),
                 gameState.getId().id(),
                 "go",
-                (int) gameState.getCreatedAt().atOffset(ZoneOffset.UTC).until(LocalDateTime.now(), ChronoUnit.SECONDS)
+                0
         );
     }
 }

@@ -48,6 +48,7 @@ public class GameStateService {
         achievementPublisher.unlock(playerId.id(), Achievement.LETS_GO);
         if (size == 19) achievementPublisher.unlock(playerId.id(), Achievement.GO_BIG_OR_GO_HOME);
         analyticsMessagePublisher.publishGameStartedMessage(GameStartedMessage.of(gameState));
+        analyticsMessagePublisher.publishSessionStartedMessage(SessionStartedMessage.of(gameState));
         return gameState;
     }
 
