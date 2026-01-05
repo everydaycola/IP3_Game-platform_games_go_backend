@@ -13,15 +13,16 @@ import java.time.LocalDateTime;
 @Slf4j
 @AllArgsConstructor
 public class GameState {
-    private static final double KOMI = 6.5;
+    public static final double KOMI = 6.5;
     private final GameStateId id;
     private final Board board;
     private final boolean isAiGame;
     private final PlayerId player1;
     private final PlayerId player2;
+    private int turnCount;
     private boolean player1AtTurn;
     private boolean isLastTurnPassed;
-    private double score;
+    private Score score;
     private Stone winner;
     private LocalDateTime createdAt;
 
@@ -30,11 +31,12 @@ public class GameState {
         this.player1 = player1;
         this.player2 = player2;
         this.id = new GameStateId();
+        this.turnCount = 0;
         this.board = new Board(size);
         this.isAiGame = isAiGame;
         this.player1AtTurn = true;
         this.isLastTurnPassed = false;
-        this.score = 0.0;
+        this.score = new Score();
         this.winner = Stone.EMPTY;
         this.createdAt = createdAt;
     }
@@ -51,6 +53,7 @@ public class GameState {
 
     public void switchPlayerAtTurn() {
         this.player1AtTurn = !this.isPlayer1AtTurn();
+        this.turnCount++;
     }
 
     public int getSize() {
@@ -63,8 +66,9 @@ public class GameState {
             this.isLastTurnPassed = true;
             return;
         }
-        this.score = this.board.calculateScore() - KOMI;
-        this.winner = this.score > 0 ? Stone.BLACK : Stone.WHITE;
+        this.score = this.board.calculateScore();
+        this.score.addWhite(KOMI);
+        this.winner = this.score.getWinner();
         log.info("""
                 The game has ended.
                 Final score: {}

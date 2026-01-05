@@ -2,17 +2,29 @@ package be.kdg.gobackend.infrastructure.gamestate.ai.dtos;
 
 import be.kdg.gobackend.domain.game.GameState;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+
 public record AiRequestBodyDto(
+        String timestamp,
+        String gameId,
+        String requestTimestamp,
+        int turnNumber,
         String[][] boardState,
         String currentPlayer,
-        boolean isLastTurnPassed
-
+        int iterations
 ) {
     public static AiRequestBodyDto from(GameState gameState) {
         return new AiRequestBodyDto(
+                LocalDateTime.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT),
+                gameState.getId().id().toString(),
+                LocalDateTime.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT),
+                gameState.getTurnCount(),
                 gameState.getBoardForDto(),
-                "WHITE",
-                gameState.isLastTurnPassed()
+                "BLACK",
+                10
         );
     }
 }
+

@@ -1,5 +1,6 @@
 package be.kdg.gobackend.application;
 
+import be.kdg.gobackend.infrastructure.gamestate.ai.dtos.AiEndGameDto;
 import be.kdg.gobackend.domain.achievements.Achievement;
 import be.kdg.gobackend.domain.exception.NotFoundException;
 import be.kdg.gobackend.domain.game.GameState;
@@ -80,15 +81,6 @@ public class GameStateService {
         gameState.placeStone(x, y, toPlaceStone);
         gameState.switchPlayerAtTurn();
         gameStateRepository.save(gameState);
-        switch (gameState.getWinner()) {
-            case BLACK:
-                achievementPublisher.unlock(playerId.id(), Achievement.LETS_GOOO);
-                break;
-            case WHITE:
-                achievementPublisher.unlock(playerId.id(), Achievement.GO_HOME);
-                break;
-            case EMPTY:
-        }
         return gameState;
     }
 
@@ -97,10 +89,11 @@ public class GameStateService {
         final var gameState = gameStateRepository.get(stateId).orElseThrow(stateId::notFound);
         final var aiResponse = aiCatalog.askForMove(AiRequestBodyDto.from(gameState))
                                         .orElseThrow(() -> new IllegalStateException("Ai could not make a move"));
-        gameState.verifyPlayer(playerId, gameState.isAiGame());
         log.info("ai chose row {}, col {}, move {}", aiResponse.row(), aiResponse.col(), aiResponse.best_move());
         if (aiResponse.col() == -1 && aiResponse.row() == -1) {
             gameState.passTurn();
+            if (!gameState.getWinner().equals(Stone.EMPTY))
+                handleEndGame(gameState);
         } else {
             gameState.placeStone(aiResponse.row(), aiResponse.col(), Stone.BLACK);
             gameState.switchPlayerAtTurn();
@@ -120,6 +113,8 @@ public class GameStateService {
         }
         gameStateRepository.save(gameState);
         achievementPublisher.unlock(playerId.id(), Achievement.GO_AHEAD);
+        if (!gameState.getWinner().equals(Stone.EMPTY))
+            handleEndGame(gameState);
         return gameState;
     }
 
@@ -127,6 +122,28 @@ public class GameStateService {
         log.info("getting the state for player {}", playerId);
         return gameStateRepository.getPlayingGameForPlayer(playerId)
                 .orElseThrow(() -> new NotFoundException("No game found for player " + playerId.id()));
+    }
+
+    private void handleEndGame(GameState gameState) {
+        log.info("handling end game for game {}", gameState.getId());
+        sendEndGameSummary(gameState);
+        switch (gameState.getWinner()) {
+            case BLACK:
+                achievementPublisher.unlock(gameState.getPlayer2().id(), Achievement.LETS_GOOO);
+                achievementPublisher.unlock(gameState.getPlayer1().id(), Achievement.GO_HOME);
+                break;
+            case WHITE:
+                achievementPublisher.unlock(gameState.getPlayer1().id(), Achievement.LETS_GOOO);
+                achievementPublisher.unlock(gameState.getPlayer2().id(), Achievement.GO_HOME);
+                break;
+        }
+        analyticsMessagePublisher.publishGameEndedMessage(GameEndedMessage.of(gameState));
+        analyticsMessagePublisher.publishWinnerDeclaredMessage(WinnerDeclaredMessage.of(gameState));
+    }
+
+    private void sendEndGameSummary(GameState gameState) {
+        log.info("sending end game summary for game {}", gameState.getId());
+        aiCatalog.SendSummaryToAI(AiEndGameDto.fromDomain(gameState));
     }
 
 }

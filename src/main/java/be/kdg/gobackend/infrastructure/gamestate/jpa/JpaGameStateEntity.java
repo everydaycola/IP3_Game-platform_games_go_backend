@@ -1,9 +1,6 @@
 package be.kdg.gobackend.infrastructure.gamestate.jpa;
 
-import be.kdg.gobackend.domain.game.Board;
-import be.kdg.gobackend.domain.game.GameState;
-import be.kdg.gobackend.domain.game.GameStateId;
-import be.kdg.gobackend.domain.game.Stone;
+import be.kdg.gobackend.domain.game.*;
 import be.kdg.gobackend.domain.player.PlayerId;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -32,7 +29,13 @@ public class JpaGameStateEntity {
     private int boardSize;
 
     @Column
-    private double score;
+    private int turnCount;
+
+    @Column
+    private double blackScore;
+
+    @Column
+    private double whiteScore;
 
     @Column
     private UUID player1;
@@ -58,7 +61,9 @@ public class JpaGameStateEntity {
                 gameState.getBoard().getStones(),
                 gameState.isAiGame(),
                 gameState.getBoard().getSize(),
-                gameState.getScore(),
+                gameState.getTurnCount(),
+                gameState.getScore().getBlackScore(),
+                gameState.getScore().getWhiteScore(),
                 gameState.getPlayer1().id(),
                 gameState.getPlayer2().id(),
                 gameState.isPlayer1AtTurn(),
@@ -75,9 +80,10 @@ public class JpaGameStateEntity {
                 this.isAiGame,
                 new PlayerId(this.player1),
                 new PlayerId(this.player2),
+                this.turnCount,
                 this.player1AtTurn,
                 this.isLastTurnPassed,
-                this.score,
+                new Score(this.blackScore, this.whiteScore),
                 this.winner,
                 this.createdAt
         );

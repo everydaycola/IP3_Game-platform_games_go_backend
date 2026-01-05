@@ -70,19 +70,18 @@ public class Board {
         tryCapture(x, y, stone);
     }
 
-    private boolean tryCapture(int x, int y, Stone stone) {
+    private void tryCapture(int x, int y, Stone stone) {
         final var visited = new boolean[size][size];
         final var result = analyseGroup(x, y, visited, stone);
         if (!result.touches.contains(Stone.EMPTY))
             for (Point point : result.visitedPoints())
                 removeStone(point.x, point.y);
-        return !result.touches.contains(Stone.EMPTY);
     }
 
     // Scoring Logic
 
-    public double calculateScore() {
-        var score = 0.0;
+    public Score calculateScore() {
+        final var score = new Score();
         // instead of calculating the actual score, for simplicity, only the score difference is calculated
         final var visited = new boolean[size][size];
 
@@ -92,12 +91,13 @@ public class Board {
 
                 switch (currentStone) {
                     // one point for if the stone is yours
-                    case BLACK -> score++;
-                    case WHITE -> score--;
+                    case BLACK -> score.addOneBlack();
+                    case WHITE -> score.addOneWhite();
+
                     // for empty tiles, do an analysis to find the terretory size
                     case EMPTY -> {
                         if (visited[x][y]) continue;
-                        score += calculateTerritoryScore(x, y, visited);
+                        score.add(calculateTerritoryScore(x, y, visited));
                     }
                 }
             }
@@ -106,15 +106,18 @@ public class Board {
         return score;
     }
 
-    private double calculateTerritoryScore(int x, int y, boolean[][] visited) {
+    private Score calculateTerritoryScore(int x, int y, boolean[][] visited) {
         final var result = analyseGroup(x, y, visited, Stone.EMPTY);
         final var touchesBlack = result.touches.contains(Stone.BLACK);
         final var touchesWhite = result.touches.contains(Stone.WHITE);
-        if (touchesBlack != touchesWhite) {
-            final var groupSize = result.visitedPoints().size();
-            return touchesBlack ? groupSize : -groupSize;
+        if (touchesBlack == touchesWhite) return new Score();
+        final var groupSize = result.visitedPoints().size();
+        if (touchesBlack) {
+            return new Score(groupSize, 0);
+        } else {
+            return new Score(0, groupSize);
         }
-        return 0.0;
+
     }
 
     private TerritoryResult analyseGroup(int startX, int startY, boolean[][] visited, Stone group) {

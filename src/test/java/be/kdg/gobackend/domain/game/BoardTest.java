@@ -105,7 +105,9 @@ class BoardTest {
             final var res = board.calculateScore();
 
             // Assert
-            assertThat(res).isEqualTo(0.0);
+            assertThat(res.blackScore).isEqualTo(0.0);
+            assertThat(res.whiteScore).isEqualTo(0.0);
+
         }
 
         @Test
@@ -113,16 +115,18 @@ class BoardTest {
         void stonesOnlyScore() {
             // Arrange
             final var board = new Board(9);
-            // Black stone (+1)
+            // Black stone (1B)
             board.placeStone(0, 0, Stone.BLACK);
-            // White stone (-1)
+            // White stone (1W)
             board.placeStone(1, 1, Stone.WHITE);
 
             // Act
             final var res = board.calculateScore();
 
-            // Assert: Total 0
-            assertThat(res).isEqualTo(0.0);
+            // Assert: 1B 1W
+            assertThat(res.blackScore).isEqualTo(1.0);
+            assertThat(res.whiteScore).isEqualTo(1.0);
+
         }
 
         @Test
@@ -141,10 +145,12 @@ class BoardTest {
             final var res = board.calculateScore();
 
             // Assert
-            // Stones: 2 Black (+3) 1 White (-1)
-            // Territory: 1 Empty touching only Black (+1)
-            // Total: 2.0
-            assertThat(res).isEqualTo(2.0);
+            // Stones: 2 Black (2B) 1 White (1W)
+            // Territory: 1 Empty touching only Black (1B)
+            // Total: 3B 1W
+            assertThat(res.blackScore).isEqualTo(3.0);
+            assertThat(res.whiteScore).isEqualTo(1.0);
+
         }
 
         @Test
@@ -164,10 +170,12 @@ class BoardTest {
             final var res = board.calculateScore();
 
             // Assert
-            // Stones: 3 White (-3) 1 Black (+1)
-            // Territory: 1 Empty touching only White (-1)
-            // Total: -3.0
-            assertThat(res).isEqualTo(-3.0);
+            // Stones: 3 White 3W 1 Black 1B
+            // Territory: 1 Empty touching only White 1W
+            // Total: 1B 4W
+            assertThat(res.blackScore).isEqualTo(1.0);
+            assertThat(res.whiteScore).isEqualTo(4.0);
+
         }
 
         @Test
@@ -188,8 +196,10 @@ class BoardTest {
             final var res = board.calculateScore();
 
             // Assert
-            // Stones: Black (+2) White (-2)
-            assertThat(res).isEqualTo(0.0);
+            // Stones: Black 2B White 2W
+            assertThat(res.blackScore).isEqualTo(2.0);
+            assertThat(res.whiteScore).isEqualTo(2.0);
+
         }
 
         @Test
@@ -215,10 +225,11 @@ class BoardTest {
             final var score = board.calculateScore();
 
             // Assert
-            // Stones: 6 Black (+6) 1 White (-1)
-            // Territory: 2 empty spots (+2)
-            // Total: 7
-            assertThat(score).isEqualTo(7.0);
+            // Stones: 6 Black 6B 1 White 1W
+            // Territory: 2 empty spots 2B
+            // Total: 8B 1W
+            assertThat(score.blackScore).isEqualTo(8.0);
+            assertThat(score.whiteScore).isEqualTo(1.0);
         }
     }
 
