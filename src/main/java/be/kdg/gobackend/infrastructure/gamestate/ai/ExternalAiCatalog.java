@@ -1,5 +1,6 @@
 package be.kdg.gobackend.infrastructure.gamestate.ai;
 
+import be.kdg.gobackend.infrastructure.gamestate.ai.dtos.AiEndGameDto;
 import be.kdg.gobackend.infrastructure.gamestate.ai.dtos.AiRequestBodyDto;
 import be.kdg.gobackend.domain.repository.AiCatalog;
 import be.kdg.gobackend.infrastructure.gamestate.ai.dtos.AiAnswerDto;
@@ -23,20 +24,24 @@ public class ExternalAiCatalog implements AiCatalog {
     }
 
     @Override public Optional<AiAnswerDto> askForMove(AiRequestBodyDto aiRequestBodyDto) {
-        log.info("Asking the Ai to make a move");
+        log.info("Asking the Ai to make a move: {}", aiRequestBodyDto);
         try {
-            final var response = restClient
+            final var responseEntity = restClient
                     .post()
                     .uri("/ai-move")
                     .body(aiRequestBodyDto)
                     .retrieve()
-                    .body(AiAnswerDto.class);
+                    .toEntity(AiAnswerDto.class);
+
+            log.info("Response status: {}", responseEntity.getStatusCode());
+
+            final var response = responseEntity.getBody();
 
             if (response == null) {
                 log.error("No ai response");
             }
 
-            return Optional.ofNullable(response);
+            return Optional.of(response);
         } catch (final HttpStatusCodeException e) {
             log.error("Error while asking AI for a move: {}", e.getMessage());
             return Optional.empty();
@@ -45,4 +50,24 @@ public class ExternalAiCatalog implements AiCatalog {
             return Optional.empty();
         }
     }
+
+    @Override
+    public void SendSummaryToAI(AiEndGameDto aiEndGameDto) {
+        log.info("Sending summary to AI: {}", aiEndGameDto);
+        try {
+            final var response = restClient
+                    .post()
+                    .uri("/end-game")
+                    .body(aiEndGameDto)
+                    .retrieve()
+                    .toBodilessEntity();
+
+            log.info("Response status: {}", response.getStatusCode());
+        } catch (final HttpStatusCodeException e) {
+            log.warn("Summary was not sent succesfully: {}", e.getMessage());
+        } catch (final ResourceAccessException e) {
+            log.warn("AI service is unreachable: {}", e.getMessage());
+        }
+    }
+
 }
