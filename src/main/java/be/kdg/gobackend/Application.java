@@ -1,7 +1,7 @@
 package be.kdg.gobackend;
 
-import be.kdg.gobackend.config.RegistrationConfig;
-import be.kdg.gobackend.config.rabbitMQ.RabbitMQProperties;
+import be.kdg.gobackend.shared.config.RegistrationConfig;
+import be.kdg.gobackend.shared.config.rabbitMQ.RabbitMQProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
