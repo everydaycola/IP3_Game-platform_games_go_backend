@@ -12,4 +12,12 @@ public class RabbitMQProperties {
     private final String registerGameQueue;
     private final String registerGameBinding;
     private final String unlockAchievementBinding;
+
+    private final String analyticsExchange;
+    private final String analyticsGameStartedBinding;
+    private final String analyticsGameEndedBinding;
+    private final String analyticsGameAbandonedBinding;
+    private final String analyticsSessionStartedBinding;
+    private final String analyticsWinnerDeclaredBinding;
+    private final String analyticsAchievementUnlockedBinding;
 }

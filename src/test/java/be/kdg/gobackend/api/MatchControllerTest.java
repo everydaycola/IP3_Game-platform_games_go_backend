@@ -10,6 +10,7 @@ import be.kdg.gobackend.domain.player.PlayerId;
 import be.kdg.gobackend.domain.repository.AiCatalog;
 import be.kdg.gobackend.infrastructure.gamestate.DbGameStateRepository;
 import be.kdg.gobackend.infrastructure.gamestate.ai.dtos.AiAnswerDto;
+import be.kdg.gobackend.infrastructure.gamestate.analytics.AnalyticsMessagePublisher;
 import be.kdg.gobackend.infrastructure.gamestate.jpa.JpaGameStateEntity;
 import be.kdg.gobackend.infrastructure.gamestate.jpa.JpaGameStateRepository;
 import be.kdg.gobackend.infrastructure.gamestate.rabbitMQ.RabbitAchievementPublisher;
@@ -24,6 +25,7 @@ import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -46,6 +48,9 @@ class MatchControllerTest {
     @MockitoBean
     private RabbitAchievementPublisher achievementPublisher;
 
+    @MockitoBean
+    private AnalyticsMessagePublisher analyticsMessagePublisher;
+
     @Nested
     @DisplayName("Success Flows")
     class SuccessFlows {
@@ -56,7 +61,7 @@ class MatchControllerTest {
             final var playerUUID = UUID.randomUUID();
             final var playerId = new PlayerId(playerUUID);
             final var aiPlayerId = new PlayerId(UUID.randomUUID());
-            final var match = new GameState(9, playerId, aiPlayerId, true);
+            final var match = new GameState(9, playerId, aiPlayerId, true, LocalDateTime.now());
             match.placeStone(0, 8, Stone.WHITE);
 
             when(jpaGameStateRepository.findById(match.getId().id()))
@@ -96,7 +101,7 @@ class MatchControllerTest {
             final var playerUUID = UUID.randomUUID();
             final var playerId = new PlayerId(playerUUID);
             final var aiPlayerId = new PlayerId(UUID.randomUUID());
-            final var match = new GameState(9, playerId, aiPlayerId, true);
+            final var match = new GameState(9, playerId, aiPlayerId, true, LocalDateTime.now());
             match.passTurn();
 
             when(jpaGameStateRepository.findById(match.getId().id()))
@@ -130,7 +135,7 @@ class MatchControllerTest {
                 UUID playerUUID = UUID.randomUUID();
                 final var playerId = new PlayerId(playerUUID);
                 final var aiPlayerId = new PlayerId(playerUUID);
-                final var match = new GameState(9, playerId, aiPlayerId, true);
+                final var match = new GameState(9, playerId, aiPlayerId, true, LocalDateTime.now());
                 match.placeStone(0, 8, Stone.BLACK);
                 final var jpaEntity = JpaGameStateEntity.fromDomain(match);
 

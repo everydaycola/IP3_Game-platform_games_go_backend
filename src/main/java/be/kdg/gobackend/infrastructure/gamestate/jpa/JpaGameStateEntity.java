@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -48,6 +49,9 @@ public class JpaGameStateEntity {
     @Column
     private Stone winner;
 
+    @Column
+    private LocalDateTime createdAt;
+
     public static JpaGameStateEntity fromDomain(GameState gameState) {
         return new JpaGameStateEntity(
                 gameState.getId().id(),
@@ -59,7 +63,8 @@ public class JpaGameStateEntity {
                 gameState.getPlayer2().id(),
                 gameState.isPlayer1AtTurn(),
                 gameState.isLastTurnPassed(),
-                gameState.getWinner()
+                gameState.getWinner(),
+                gameState.getCreatedAt()
         );
     }
 
@@ -73,7 +78,8 @@ public class JpaGameStateEntity {
                 this.player1AtTurn,
                 this.isLastTurnPassed,
                 this.score,
-                this.winner
+                this.winner,
+                this.createdAt
         );
     }
 }
