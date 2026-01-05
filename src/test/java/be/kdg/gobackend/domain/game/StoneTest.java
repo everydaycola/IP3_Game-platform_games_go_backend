@@ -1,5 +1,6 @@
 package be.kdg.gobackend.domain.game;
 
+import be.kdg.gobackend.game.domain.Stone;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

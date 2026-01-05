@@ -1,7 +1,8 @@
 package be.kdg.gobackend.domain.game;
 
-import be.kdg.gobackend.domain.exception.NotFoundException;
-import be.kdg.gobackend.domain.player.PlayerId;
+import be.kdg.gobackend.shared.exception.NotFoundException;
+import be.kdg.gobackend.game.domain.PlayerId;
+import be.kdg.gobackend.game.domain.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -82,8 +83,8 @@ class GameStateTest {
 
             // Assert
             assertThat(gameState.getWinner()).isEqualTo(Stone.BLACK);
-            assertThat(gameState.getScore().blackScore).isEqualTo(finalScore.blackScore);
-            assertThat(gameState.getScore().whiteScore).isEqualTo(finalScore.whiteScore);
+            assertThat(gameState.getScore().getBlackScore()).isEqualTo(finalScore.getBlackScore());
+            assertThat(gameState.getScore().getWhiteScore()).isEqualTo(finalScore.getWhiteScore());
         }
 
         @Test
@@ -103,8 +104,8 @@ class GameStateTest {
             gameState.passTurn();
 
             // Assert
-            assertThat(gameState.getScore().blackScore).isEqualTo(finalScore.blackScore);
-            assertThat(gameState.getScore().whiteScore).isEqualTo(finalScore.whiteScore);
+            assertThat(gameState.getScore().getBlackScore()).isEqualTo(finalScore.getBlackScore());
+            assertThat(gameState.getScore().getWhiteScore()).isEqualTo(finalScore.getWhiteScore());
             assertThat(gameState.getWinner()).isEqualTo(Stone.WHITE);
         }
 

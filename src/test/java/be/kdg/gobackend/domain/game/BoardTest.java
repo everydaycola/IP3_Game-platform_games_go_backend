@@ -1,5 +1,7 @@
 package be.kdg.gobackend.domain.game;
 
+import be.kdg.gobackend.game.domain.Board;
+import be.kdg.gobackend.game.domain.Stone;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -105,8 +107,8 @@ class BoardTest {
             final var res = board.calculateScore();
 
             // Assert
-            assertThat(res.blackScore).isEqualTo(0.0);
-            assertThat(res.whiteScore).isEqualTo(0.0);
+            assertThat(res.getBlackScore()).isEqualTo(0.0);
+            assertThat(res.getWhiteScore()).isEqualTo(0.0);
 
         }
 
@@ -124,8 +126,8 @@ class BoardTest {
             final var res = board.calculateScore();
 
             // Assert: 1B 1W
-            assertThat(res.blackScore).isEqualTo(1.0);
-            assertThat(res.whiteScore).isEqualTo(1.0);
+            assertThat(res.getBlackScore()).isEqualTo(1.0);
+            assertThat(res.getWhiteScore()).isEqualTo(1.0);
 
         }
 
@@ -148,8 +150,8 @@ class BoardTest {
             // Stones: 2 Black (2B) 1 White (1W)
             // Territory: 1 Empty touching only Black (1B)
             // Total: 3B 1W
-            assertThat(res.blackScore).isEqualTo(3.0);
-            assertThat(res.whiteScore).isEqualTo(1.0);
+            assertThat(res.getBlackScore()).isEqualTo(3.0);
+            assertThat(res.getWhiteScore()).isEqualTo(1.0);
 
         }
 
@@ -173,8 +175,8 @@ class BoardTest {
             // Stones: 3 White 3W 1 Black 1B
             // Territory: 1 Empty touching only White 1W
             // Total: 1B 4W
-            assertThat(res.blackScore).isEqualTo(1.0);
-            assertThat(res.whiteScore).isEqualTo(4.0);
+            assertThat(res.getBlackScore()).isEqualTo(1.0);
+            assertThat(res.getWhiteScore()).isEqualTo(4.0);
 
         }
 
@@ -197,8 +199,8 @@ class BoardTest {
 
             // Assert
             // Stones: Black 2B White 2W
-            assertThat(res.blackScore).isEqualTo(2.0);
-            assertThat(res.whiteScore).isEqualTo(2.0);
+            assertThat(res.getBlackScore()).isEqualTo(2.0);
+            assertThat(res.getWhiteScore()).isEqualTo(2.0);
 
         }
 
@@ -228,8 +230,8 @@ class BoardTest {
             // Stones: 6 Black 6B 1 White 1W
             // Territory: 2 empty spots 2B
             // Total: 8B 1W
-            assertThat(score.blackScore).isEqualTo(8.0);
-            assertThat(score.whiteScore).isEqualTo(1.0);
+            assertThat(score.getBlackScore()).isEqualTo(8.0);
+            assertThat(score.getWhiteScore()).isEqualTo(1.0);
         }
     }
 
